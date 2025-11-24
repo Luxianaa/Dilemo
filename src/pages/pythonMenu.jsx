@@ -11,8 +11,12 @@ export default function PythonMenu() {
       {/* Botón regresar */}
       <button
         onClick={() => navigate("/")}
-        className="absolute top-5 left-5 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-xl shadow-lg"
-      ></button>
+        className="absolute top-5 left-5 bg-white hover:bg-gray-100 text-black p-3 rounded-xl shadow-lg border-2 border-black z-50 transition-all hover:scale-110"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
 
       {/* Carta */}
       <div className="bg-white w-[90%] max-w-md rounded-3xl shadow-[0_10px_0_#000] p-10 relative border-[4px] border-black">
@@ -37,7 +41,10 @@ export default function PythonMenu() {
           </div>
         </div>
         <div className="mt-8 flex flex-col items-center gap-3">
-          <button className="w-full max-w-xs bg-[#4b5bfe] hover:bg-[#3c49d0] text-white py-3 rounded-xl border-4 border-black font-semibold text-lg shadow-lg transition">
+          <button 
+            onClick={() => navigate("/game")}
+            className="w-full max-w-xs bg-[#4b5bfe] hover:bg-[#3c49d0] text-white py-3 rounded-xl border-4 border-black font-semibold text-lg shadow-lg transition"
+          >
             Nuevo Juego
           </button>
         </div>

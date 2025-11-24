@@ -1,21 +1,35 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function PythonMenu() {
   const navigate = useNavigate();
+  const [level, setLevel] = useState(1);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("pythonLevel");
+    if (saved) setLevel(parseInt(saved));
+  }, []);
 
   return (
-
-    // carta flotando
-    
     <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
-
       {/* Botón regresar */}
       <button
         onClick={() => navigate("/")}
         className="absolute top-5 left-5 bg-white hover:bg-gray-100 text-black p-3 rounded-xl shadow-lg border-2 border-black z-50 transition-all hover:scale-110"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
       </button>
 
@@ -33,16 +47,15 @@ export default function PythonMenu() {
         </div>
 
         {/* Selector de niveles */}
-        <div className="mt-6 flex flex-col items-center">
-          <p className="text-lg font-semibold mb-3">Level:</p>
+        <div className="mt-6 flex flex-col items-center gap-4">
+          <h1 className="text-lg font-semibold mb-3">Level:</h1>
 
-          <div className="flex flex-colgap-3 text-black font-bold items-center ">
-                    1
-             
+          <div className="flex flex-col gap-3 text-black items-center">
+            <h1 className="font-bold text-3xl">{level}</h1>
           </div>
         </div>
         <div className="mt-8 flex flex-col items-center gap-3">
-          <button 
+          <button
             onClick={() => navigate("/game")}
             className="w-full max-w-xs bg-[#4b5bfe] hover:bg-[#3c49d0] text-white py-3 rounded-xl border-4 border-black font-semibold text-lg shadow-lg transition"
           >

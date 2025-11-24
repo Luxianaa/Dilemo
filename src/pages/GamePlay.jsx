@@ -1,61 +1,49 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
+import { pythonLevels } from "../data/pythonLevels";
+
+// --- Mezclar preguntas ---
+function shuffleArray(array) {
+  return array
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
 
 export default function GamePlay() {
   const navigate = useNavigate();
+  const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const modalRef = useRef(null);
-  const totalCards = 10;
 
-  // Array de preguntas con sus respuestas correctas
-  const questions = [
-    { text: "Python fue creado por Guido van Rossum en 1991.", answer: true },
-    { text: "En Python, las listas se definen con llaves {}.", answer: false },
-    { text: "Python es un lenguaje de tipado dinámico.", answer: true },
-    { text: "La función print() en Python requiere paréntesis en Python 3.", answer: true },
-    { text: "Python soporta programación orientada a objetos.", answer: true },
-    { text: "Los comentarios en Python se escriben con //.", answer: false },
-    { text: "Python usa indentación para definir bloques de código.", answer: true },
-    { text: "El operador == compara valores y el operador 'is' compara identidad.", answer: true },
-    { text: "En Python, las cadenas son mutables.", answer: false },
-    { text: "Python permite herencia múltiple en clases.", answer: true }
-  ];
+  const cardRef = useRef(null);
 
+  // Obtener nivel actual
+  const level = parseInt(localStorage.getItem("pythonLevel") || "1");
+
+  // Cargar preguntas del nivel
   useEffect(() => {
-    // Animación de flotación suave
-    gsap.to('#game-card', {
+    const currentQuestions =
+      pythonLevels[level] || pythonLevels[Object.keys(pythonLevels).length];
+
+    setQuestions(shuffleArray(currentQuestions));
+  }, [level]);
+
+  // Animación flotante
+  useEffect(() => {
+    gsap.to("#game-card", {
       y: -8,
       duration: 2.5,
       ease: "power1.inOut",
       yoyo: true,
-      repeat: -1
+      repeat: -1,
     });
   }, []);
 
-  useEffect(() => {
-    // Animación de la carta según la respuesta
-    if (showModal && document.getElementById('game-card')) {
-      if (isCorrect) {
-        // Borde verde y escala
-        gsap.to('#game-card', {
-          scale: 1.05,
-          duration: 0.3,
-          ease: "back.out(1.5)"
-        });
-      } else {
-        // Shake rápido
-        gsap.to('#game-card', {
-          x: [-10, 10, -8, 8, -5, 5, 0],
-          duration: 0.5,
-          ease: "power1.inOut"
-        });
-      }
-    }
-  }, [showModal, isCorrect]);
+  if (questions.length === 0) return null;
 
   const handleAnswer = (userAnswer) => {
     const correct = questions[currentCardIndex].answer === userAnswer;
@@ -65,73 +53,59 @@ export default function GamePlay() {
     if (!correct) {
       const newLives = lives - 1;
       setLives(newLives);
-      
-      // Si se acabaron las vidas, regresar al menú
+
       if (newLives <= 0) {
+        // GAME OVER
         setTimeout(() => {
-          gsap.to('#game-card', {
-            scale: 0,
-            opacity: 0,
-            duration: 0.5,
-            ease: "back.in(1.7)",
-            onComplete: () => {
-              navigate('/python');
-            }
-          });
+          navigate("/python");
         }, 1500);
         return;
       }
     }
 
-    // Ocultar modal después de 1.5 segundos y avanzar
+    // Avanzar
     setTimeout(() => {
       setShowModal(false);
-      nextCard(userAnswer ? 'true' : 'false');
+      nextCard(userAnswer ? "true" : "false");
     }, 1500);
   };
 
   const nextCard = (direction) => {
-    if (currentCardIndex >= totalCards - 1) {
-      // No hay más cartas - regresar al menú
-      gsap.to('#game-card', {
+    if (currentCardIndex >= questions.length - 1) {
+      // SUBIR NIVEL
+      const currentLevel = parseInt(localStorage.getItem("pythonLevel") || "1");
+      localStorage.setItem("pythonLevel", currentLevel + 1);
+
+      gsap.to("#game-card", {
         scale: 0,
         opacity: 0,
         duration: 0.5,
         ease: "back.in(1.7)",
-        onComplete: () => {
-          navigate('/python');
-        }
+        onComplete: () => navigate("/python"),
       });
+
       return;
     }
 
     // Animación de salida
-    gsap.to('#game-card', {
-      x: direction === 'true' ? 600 : -600,
-      rotation: direction === 'true' ? 20 : -20,
+    gsap.to("#game-card", {
+      x: direction === "true" ? 600 : -600,
+      rotation: direction === "true" ? 20 : -20,
       opacity: 0,
       duration: 0.4,
       ease: "power2.in",
       onComplete: () => {
-        // Cambiar a la siguiente carta
-        setCurrentCardIndex(prev => prev + 1);
-        
-        // Resetear posición
-        gsap.set('#game-card', {
-          x: 0,
-          rotation: 0,
-          opacity: 0,
-          scale: 0.8
-        });
-        
-        // Animación de entrada
-        gsap.to('#game-card', {
+        setCurrentCardIndex((prev) => prev + 1);
+
+        gsap.set("#game-card", { x: 0, rotation: 0, opacity: 0, scale: 0.8 });
+
+        gsap.to("#game-card", {
           opacity: 1,
           scale: 1,
           duration: 0.4,
-          ease: "back.out(1.7)"
+          ease: "back.out(1.7)",
         });
-      }
+      },
     });
   };
 
@@ -161,15 +135,17 @@ export default function GamePlay() {
       
       {/* Contador simple */}
       <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white/90 text-black px-5 py-2 rounded-full font-bold text-xl border-2 border-black">
-          {currentCardIndex + 1}/{totalCards}
+        <div className="bg-white/90 text-black px-5 py-2 rounded-md font-bold text-xl border-2 border-black">
+          {currentCardIndex + 1}/{questions.length}
         </div>
       </div>
 
       <div className="flex flex-col items-center gap-10 relative">
+
+
         
         {/* Carta con estilo consistente */}
-        <div id="game-card" className="w-full max-w-[350px]">
+        <div id="game-card" className="w-[350px] h-[420px]">
           <div className={`relative bg-white rounded-3xl border-[4px] ${showModal ? (isCorrect ? 'border-green-500' : 'border-red-500') : 'border-black'} shadow-[0_8px_0_#000] p-8 min-h-[400px] flex flex-col items-center justify-center transition-all duration-300`}>
             
             {/* Esquinas decorativas */}
@@ -180,7 +156,7 @@ export default function GamePlay() {
 
             {/* Barra del título */}
             <div className="w-full bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 border-b-4 border-black rounded-t-2xl absolute top-0 left-0 right-0">
-              Nivel {currentCardIndex + 1}
+              Nivel {level}
             </div>
 
             {/* Pregunta */}

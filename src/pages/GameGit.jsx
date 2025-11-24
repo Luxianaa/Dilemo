@@ -1,56 +1,49 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
+import { gitLevels   } from "../data/gitLevels";
 
-export default function GameGit() {
+// --- Mezclar preguntas ---
+function shuffleArray(array) {
+  return array
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
+
+export default function GamePlay() {
   const navigate = useNavigate();
+  const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const totalCards = 10;
 
-  // Preguntas de Git
-  const questions = [
-    { text: "Git fue creado por Linus Torvalds en 2005.", answer: true },
-    { text: "El comando 'git init' elimina un repositorio.", answer: false },
-    { text: "'git clone' crea una copia local de un repositorio remoto.", answer: true },
-    { text: "'git push' descarga cambios del repositorio remoto.", answer: false },
-    { text: "'git commit' guarda cambios en el repositorio local.", answer: true },
-    { text: "Un 'merge conflict' ocurre cuando Git fusiona cambios automáticamente.", answer: false },
-    { text: "'git branch' muestra todas las ramas del repositorio.", answer: true },
-    { text: "'git pull' sube cambios al repositorio remoto.", answer: false },
-    { text: "GitHub y Git son el mismo software.", answer: false },
-    { text: "'git status' muestra el estado actual del repositorio.", answer: true }
-  ];
+  const cardRef = useRef(null);
 
+  // Obtener nivel actual
+  const level = parseInt(localStorage.getItem("gitLevel") || "1");
+
+  // Cargar preguntas del nivel
   useEffect(() => {
-    gsap.to('#game-card', {
+    const currentQuestions =
+      gitLevels[level] || gitLevels[Object.keys(gitLevels).length];
+
+    setQuestions(shuffleArray(currentQuestions));
+  }, [level]);
+
+  // Animación flotante
+  useEffect(() => {
+    gsap.to("#game-card", {
       y: -8,
       duration: 2.5,
       ease: "power1.inOut",
       yoyo: true,
-      repeat: -1
+      repeat: -1,
     });
   }, []);
 
-  useEffect(() => {
-    if (showModal && document.getElementById('game-card')) {
-      if (isCorrect) {
-        gsap.to('#game-card', {
-          scale: 1.05,
-          duration: 0.3,
-          ease: "back.out(1.5)"
-        });
-      } else {
-        gsap.to('#game-card', {
-          x: [-10, 10, -8, 8, -5, 5, 0],
-          duration: 0.5,
-          ease: "power1.inOut"
-        });
-      }
-    }
-  }, [showModal, isCorrect]);
+  if (questions.length === 0) return null;
 
   const handleAnswer = (userAnswer) => {
     const correct = questions[currentCardIndex].answer === userAnswer;
@@ -60,66 +53,59 @@ export default function GameGit() {
     if (!correct) {
       const newLives = lives - 1;
       setLives(newLives);
-      
+
       if (newLives <= 0) {
+        // GAME OVER
         setTimeout(() => {
-          gsap.to('#game-card', {
-            scale: 0,
-            opacity: 0,
-            duration: 0.5,
-            ease: "back.in(1.7)",
-            onComplete: () => {
-              navigate('/git');
-            }
-          });
+          navigate("/git");
         }, 1500);
         return;
       }
     }
 
+    // Avanzar
     setTimeout(() => {
       setShowModal(false);
-      nextCard(userAnswer ? 'true' : 'false');
+      nextCard(userAnswer ? "true" : "false");
     }, 1500);
   };
 
   const nextCard = (direction) => {
-    if (currentCardIndex >= totalCards - 1) {
-      gsap.to('#game-card', {
+    if (currentCardIndex >= questions.length - 1) {
+      // SUBIR NIVEL
+      const currentLevel = parseInt(localStorage.getItem("gitLevel") || "1");
+      localStorage.setItem("gitLevel", currentLevel + 1);
+
+      gsap.to("#game-card", {
         scale: 0,
         opacity: 0,
         duration: 0.5,
         ease: "back.in(1.7)",
-        onComplete: () => {
-          navigate('/git');
-        }
+        onComplete: () => navigate("/git"),
       });
+
       return;
     }
 
-    gsap.to('#game-card', {
-      x: direction === 'true' ? 600 : -600,
-      rotation: direction === 'true' ? 20 : -20,
+    // Animación de salida
+    gsap.to("#game-card", {
+      x: direction === "true" ? 600 : -600,
+      rotation: direction === "true" ? 20 : -20,
       opacity: 0,
       duration: 0.4,
       ease: "power2.in",
       onComplete: () => {
-        setCurrentCardIndex(prev => prev + 1);
-        
-        gsap.set('#game-card', {
-          x: 0,
-          rotation: 0,
-          opacity: 0,
-          scale: 0.8
-        });
-        
-        gsap.to('#game-card', {
+        setCurrentCardIndex((prev) => prev + 1);
+
+        gsap.set("#game-card", { x: 0, rotation: 0, opacity: 0, scale: 0.8 });
+
+        gsap.to("#game-card", {
           opacity: 1,
           scale: 1,
           duration: 0.4,
-          ease: "back.out(1.7)"
+          ease: "back.out(1.7)",
         });
-      }
+      },
     });
   };
 
@@ -146,14 +132,14 @@ export default function GameGit() {
       </div>
       
       <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white/90 text-black px-5 py-2 rounded-full font-bold text-xl border-2 border-black">
-          {currentCardIndex + 1}/{totalCards}
+        <div className="bg-white text-black px-5 py-2 rounded-md font-bold text-xl border-2 border-black">
+          {currentCardIndex + 1}/{questions.length}
         </div>
       </div>
 
       <div className="flex flex-col items-center gap-10 relative">
         
-        <div id="game-card" className="w-full max-w-[350px]">
+        <div id="game-card" className="w-[350px] h-[420px]">
           <div className={`relative bg-white rounded-3xl border-[4px] ${showModal ? (isCorrect ? 'border-green-500' : 'border-red-500') : 'border-black'} shadow-[0_8px_0_#000] p-8 min-h-[400px] flex flex-col items-center justify-center transition-all duration-300`}>
             
             <div className="absolute top-3 left-3 w-8 h-8 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
@@ -162,7 +148,7 @@ export default function GameGit() {
             <div className="absolute bottom-3 right-3 w-8 h-8 border-r-4 border-b-4 border-black rounded-br-lg"></div>
 
             <div className="w-full bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 border-b-4 border-black rounded-t-2xl absolute top-0 left-0 right-0">
-              Nivel {currentCardIndex + 1}
+              Nivel {level}
             </div>
 
             <p className="text-black text-lg font-semibold text-center px-4 mt-12">

@@ -3,6 +3,7 @@ import CardCarousel from "./cardCarousel";
 import gsap from "gsap";
 
 // IMPORTA IMÁGENES
+
 import head from "../assets/head.svg";
 import pythonLogo from "../assets/python.svg";
 import hand from "../assets/hand.png";
@@ -30,16 +31,11 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
-
-      <div className="flex flex-col items-center gap-4 relative z-10">
+    <div className="h-screen w-full bg-[#1a1f2b] flex flex-col items-center justify-center px-4">
+      <div className="flex flex-col items-center gap-4 relative">
 
         {/* Cabeza flotando */}
-         {/* <img
-          ref={headRef}
-          src={head}
-          className="w-[150px] -mt-5 select-none z-20"
-        />  */}
+        {/*    */}
 
         <CardCarousel />
 

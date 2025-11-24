@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-export default function QuizMenu() {
+export default function PythonMenu() {
   const navigate = useNavigate();
+  const [level, setLevel] = useState(1);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("logoQuizLevel");
+    if (saved) setLevel(parseInt(saved));
+  }, []);
 
   return (
     <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
@@ -30,10 +37,11 @@ export default function QuizMenu() {
         </div>
 
         {/* Selector de niveles */}
-        <div className="mt-6 flex flex-col items-center">
-          <p className="text-lg font-semibold mb-3">Level:</p>
-          <div className="flex flex-col gap-3 text-black font-bold items-center">
-            1
+        <div className="mt-6 flex flex-col items-center gap-4">
+          <h1 className="text-lg font-semibold mb-3">Level:</h1>
+
+          <div className="flex flex-col gap-3 text-black items-center">
+            <h1 className="font-bold text-3xl">{level}</h1>
           </div>
         </div>
         

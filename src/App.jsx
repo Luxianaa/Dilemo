@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Importa tus pantallas
 import HeroSection from "./components/HeroSection";
-import PythonMenu from "./pages/PythonMenu";
+import PythonMenu from "./pages/pythonMenu";
 import GamePlay from "./pages/GamePlay";
 import GitMenu from "./pages/GitMenu";
 import GameGit from "./pages/GameGit";

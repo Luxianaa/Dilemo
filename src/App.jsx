@@ -4,24 +4,31 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HeroSection from "./components/HeroSection";
 import PythonMenu from "./pages/PythonMenu";
 import GamePlay from "./pages/GamePlay";
-// import GitMenu from "./pages/GitMenu";
-// import LogoQuizMenu from "./pages/LogoQuizMenu";
+import GitMenu from "./pages/GitMenu";
+import GameGit from "./pages/GameGit";
+import QuizMenu from "./pages/QuizMenu";
+import GameQuiz from "./pages/GameQuiz";
+import SparklesCursor from "./components/SparklesCursor";
 
 export default function App() {
   return (
     <BrowserRouter>
+      <SparklesCursor />
       <Routes>
         {/* Pantalla principal */}
         <Route path="/" element={<HeroSection />} />
 
-        {/* Pantallas del menú según la carta */}
+        {/* Python */}
         <Route path="/python" element={<PythonMenu />} />
-        
-        {/* Pantalla del juego */}
         <Route path="/game" element={<GamePlay />} />
         
-        {/* <Route path="/git" element={<GitMenu />} /> */}
-        {/* <Route path="/logoquiz" element={<LogoQuizMenu />} /> */}
+        {/* Git */}
+        <Route path="/git" element={<GitMenu />} />
+        <Route path="/game-git" element={<GameGit />} />
+        
+        {/* Logo Quiz */}
+        <Route path="/logoquiz" element={<QuizMenu />} />
+        <Route path="/game-quiz" element={<GameQuiz />} />
       </Routes>
     </BrowserRouter>
   );

@@ -30,16 +30,16 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <div className="h-screen w-full bg-gradient-to-b from-[#6d2aff] via-[#8d4fff] to-[#ff7bca] flex flex-col items-center justify-center px-4">
+    <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
 
-      <div className="flex flex-col items-center gap-4 relative">
+      <div className="flex flex-col items-center gap-4 relative z-10">
 
         {/* Cabeza flotando */}
-        <img
+         {/* <img
           ref={headRef}
           src={head}
           className="w-[150px] -mt-5 select-none z-20"
-        />
+        />  */}
 
         <CardCarousel />
 

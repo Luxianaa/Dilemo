@@ -1,12 +1,9 @@
 import { useNavigate } from "react-router-dom";
 
-export default function PythonMenu() {
+export default function QuizMenu() {
   const navigate = useNavigate();
 
   return (
-
-    // carta flotando
-    
     <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
 
       {/* Botón regresar */}
@@ -20,7 +17,7 @@ export default function PythonMenu() {
       </button>
 
       {/* Carta */}
-      <div className="bg-white w-[90%] max-w-md rounded-3xl shadow-[0_10px_0_#000] p-10 relative border-[4px] border-black">
+      <div className="bg-white w-[90%] max-w-md rounded-3xl shadow-[0_10px_0_#000] p-10 relative border-[4px] border-black z-10">
         {/* Esquinas decorativas */}
         <div className="absolute top-3 left-3 w-6 h-6 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
         <div className="absolute top-3 right-3 w-6 h-6 border-r-4 border-t-4 border-black rounded-tr-lg"></div>
@@ -29,21 +26,20 @@ export default function PythonMenu() {
 
         {/* Título */}
         <div className="bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 rounded-lg border-4 border-black shadow-md">
-          PYTHON
+          LOGO QUIZ
         </div>
 
         {/* Selector de niveles */}
         <div className="mt-6 flex flex-col items-center">
           <p className="text-lg font-semibold mb-3">Level:</p>
-
-          <div className="flex flex-colgap-3 text-black font-bold items-center ">
-                    1
-             
+          <div className="flex flex-col gap-3 text-black font-bold items-center">
+            1
           </div>
         </div>
+        
         <div className="mt-8 flex flex-col items-center gap-3">
           <button 
-            onClick={() => navigate("/game")}
+            onClick={() => navigate("/game-quiz")}
             className="w-full max-w-xs bg-[#4b5bfe] hover:bg-[#3c49d0] text-white py-3 rounded-xl border-4 border-black font-semibold text-lg shadow-lg transition"
           >
             Nuevo Juego

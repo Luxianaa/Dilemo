@@ -30,7 +30,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <div className="bg-[#453f3d] w-full h-screen flex justify-center items-center overflow-hidden">
+    <div className="h-screen w-full bg-gradient-to-b from-[#6d2aff] via-[#8d4fff] to-[#ff7bca] flex flex-col items-center justify-center px-4">
 
       <div className="flex flex-col items-center gap-4 relative">
 

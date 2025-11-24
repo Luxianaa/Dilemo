@@ -38,19 +38,15 @@ export default function HeroSection() {
         <img
           ref={headRef}
           src={head}
-          className="w-[200px] -mt-5 select-none z-20"
+          className="w-[150px] -mt-5 select-none z-20"
         />
 
         <CardCarousel />
-        {/* <div className="bg-[#fff2e3] rounded-xl p-4 w-[200px] h-[250px] shadow-lg flex flex-col items-center justify-center gap-2">
-          <h1 className="text-xl font-bold text-[#ff6d29]">Python</h1>
-          <img src={pythonLogo} className="w-[70px]" />
-        </div> */}
 
         <img
           ref={handRef}
           src={hand}
-          className="w-[260px] select-none z-10"
+          className="w-[320px] select-none z-10"
         />
       </div>
 

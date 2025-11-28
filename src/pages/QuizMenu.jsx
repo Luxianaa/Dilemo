@@ -25,6 +25,7 @@ export default function PythonMenu() {
 
       {/* Carta */}
       <div className="bg-white w-[90%] max-w-md rounded-3xl shadow-[0_10px_0_#000] p-10 relative border-[4px] border-black z-10">
+
         {/* Esquinas decorativas */}
         <div className="absolute top-3 left-3 w-6 h-6 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
         <div className="absolute top-3 right-3 w-6 h-6 border-r-4 border-t-4 border-black rounded-tr-lg"></div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import { gitLevels   } from "../data/gitLevels";
+import { fetchQuestions } from "../services/api";
 
 // --- Mezclar preguntas ---
 function shuffleArray(array) {
@@ -11,39 +11,148 @@ function shuffleArray(array) {
     .map(({ value }) => value);
 }
 
-export default function GamePlay() {
+export default function GameGit() {
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Estados para el drag
+  const [isDragging, setIsDragging] = useState(false);
   const cardRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Obtener nivel actual
   const level = parseInt(localStorage.getItem("gitLevel") || "1");
 
-  // Cargar preguntas del nivel
+  // Cargar preguntas del nivel desde la API
   useEffect(() => {
-    const currentQuestions =
-      gitLevels[level] || gitLevels[Object.keys(gitLevels).length];
+    const loadQuestions = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchQuestions('git', level);
+        setQuestions(shuffleArray(data));
+      } catch (error) {
+        console.error('Error loading questions:', error);
+        navigate('/git');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setQuestions(shuffleArray(currentQuestions));
-  }, [level]);
+    loadQuestions();
+  }, [level, navigate]);
 
   // Animación flotante
   useEffect(() => {
-    gsap.to("#game-card", {
-      y: -8,
-      duration: 2.5,
-      ease: "power1.inOut",
-      yoyo: true,
-      repeat: -1,
-    });
-  }, []);
+    if (!loading) {
+      gsap.to("#game-card", {
+        y: -8,
+        duration: 2.5,
+        ease: "power1.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
+    }
+  }, [loading]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex justify-center items-center">
+        <div className="text-white text-2xl">Cargando preguntas...</div>
+      </div>
+    );
+  }
 
   if (questions.length === 0) return null;
+
+  // === DRAG HANDLERS ===
+  const startDrag = (e) => {
+    if (isDragging || showModal) return;
+
+    setIsDragging(true);
+    const startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+
+    gsap.killTweensOf("#game-card");
+
+    if (cardRef.current) {
+      cardRef.current.style.transition = 'none';
+    }
+
+    const onDrag = (moveEvent) => {
+      if (!cardRef.current) return;
+
+      const currentX = moveEvent.type === 'mousemove' ? moveEvent.clientX : moveEvent.touches[0].clientX;
+      const diffX = currentX - startX;
+      const rotation = diffX * 0.1;
+
+      cardRef.current.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
+
+      if (containerRef.current) {
+        if (diffX > 50) {
+          containerRef.current.style.backgroundColor = 'rgba(78, 205, 196, 0.1)';
+        } else if (diffX < -50) {
+          containerRef.current.style.backgroundColor = 'rgba(255, 77, 109, 0.1)';
+        } else {
+          containerRef.current.style.backgroundColor = 'transparent';
+        }
+      }
+    };
+
+    const endDrag = (endEvent) => {
+      setIsDragging(false);
+
+      const currentX = endEvent.type === 'mouseup' ? endEvent.clientX : endEvent.changedTouches[0].clientX;
+      const diffX = currentX - startX;
+
+      if (containerRef.current) {
+        containerRef.current.style.backgroundColor = 'transparent';
+      }
+
+      if (cardRef.current) {
+        cardRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      }
+
+      if (diffX > 100) {
+        if (cardRef.current) {
+          cardRef.current.style.transform = 'translateX(150%) rotate(20deg)';
+          cardRef.current.style.opacity = '0';
+        }
+        setTimeout(() => handleAnswer(true), 300);
+      } else if (diffX < -100) {
+        if (cardRef.current) {
+          cardRef.current.style.transform = 'translateX(-150%) rotate(-20deg)';
+          cardRef.current.style.opacity = '0';
+        }
+        setTimeout(() => handleAnswer(false), 300);
+      } else {
+        if (cardRef.current) {
+          cardRef.current.style.transform = 'translateX(0) rotate(0)';
+        }
+
+        gsap.to("#game-card", {
+          y: -8,
+          duration: 2.5,
+          ease: "power1.inOut",
+          yoyo: true,
+          repeat: -1,
+        });
+      }
+
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('mouseup', endDrag);
+      document.removeEventListener('touchend', endDrag);
+    };
+
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag);
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+  };
 
   const handleAnswer = (userAnswer) => {
     const correct = questions[currentCardIndex].answer === userAnswer;
@@ -55,7 +164,6 @@ export default function GamePlay() {
       setLives(newLives);
 
       if (newLives <= 0) {
-        // GAME OVER
         setTimeout(() => {
           navigate("/git");
         }, 1500);
@@ -63,7 +171,6 @@ export default function GamePlay() {
       }
     }
 
-    // Avanzar
     setTimeout(() => {
       setShowModal(false);
       nextCard(userAnswer ? "true" : "false");
@@ -72,7 +179,6 @@ export default function GamePlay() {
 
   const nextCard = (direction) => {
     if (currentCardIndex >= questions.length - 1) {
-      // SUBIR NIVEL
       const currentLevel = parseInt(localStorage.getItem("gitLevel") || "1");
       localStorage.setItem("gitLevel", currentLevel + 1);
 
@@ -87,26 +193,31 @@ export default function GamePlay() {
       return;
     }
 
-    // Animación de salida
-    gsap.to("#game-card", {
-      x: direction === "true" ? 600 : -600,
-      rotation: direction === "true" ? 20 : -20,
-      opacity: 0,
-      duration: 0.4,
-      ease: "power2.in",
-      onComplete: () => {
-        setCurrentCardIndex((prev) => prev + 1);
+    setCurrentCardIndex((prev) => prev + 1);
 
-        gsap.set("#game-card", { x: 0, rotation: 0, opacity: 0, scale: 0.8 });
+    if (cardRef.current) {
+      cardRef.current.style.transition = 'none';
+      cardRef.current.style.transform = 'translateX(0) rotate(0) scale(0.8)';
+      cardRef.current.style.opacity = '0';
 
-        gsap.to("#game-card", {
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          ease: "back.out(1.7)",
-        });
-      },
-    });
+      setTimeout(() => {
+        if (cardRef.current) {
+          cardRef.current.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          cardRef.current.style.transform = 'translateX(0) rotate(0) scale(1)';
+          cardRef.current.style.opacity = '1';
+        }
+
+        setTimeout(() => {
+          gsap.to("#game-card", {
+            y: -8,
+            duration: 2.5,
+            ease: "power1.inOut",
+            yoyo: true,
+            repeat: -1,
+          });
+        }, 400);
+      }, 50);
+    }
   };
 
   return (
@@ -125,23 +236,29 @@ export default function GamePlay() {
         {[...Array(3)].map((_, i) => (
           <div key={i} className={`transition-all duration-300 ${i < lives ? 'opacity-100 scale-100' : 'opacity-30 scale-75'}`}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 24 24" fill={i < lives ? "#FFD700" : "#666"} stroke="#000" strokeWidth="1">
-              <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/>
+              <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
             </svg>
           </div>
         ))}
       </div>
-      
+
       <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-white text-black px-5 py-2 rounded-md font-bold text-xl border-2 border-black">
           {currentCardIndex + 1}/{questions.length}
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-10 relative">
-        
-        <div id="game-card" className="w-[350px] h-[420px]">
-          <div className={`relative bg-white rounded-3xl border-[4px] ${showModal ? (isCorrect ? 'border-green-500' : 'border-red-500') : 'border-black'} shadow-[0_8px_0_#000] p-8 min-h-[400px] flex flex-col items-center justify-center transition-all duration-300`}>
-            
+      <div className="flex flex-col items-center gap-10 relative" ref={containerRef}>
+
+        <div
+          id="game-card"
+          ref={cardRef}
+          className="w-[350px] h-[420px] cursor-grab active:cursor-grabbing"
+          onMouseDown={startDrag}
+          onTouchStart={startDrag}
+        >
+          <div className={`relative bg-white rounded-3xl border-[4px] ${showModal ? (isCorrect ? 'border-green-500' : 'border-red-500') : 'border-black'} shadow-[0_8px_0_#000] p-8 min-h-[400px] flex flex-col items-center justify-center transition-all duration-300 select-none`}>
+
             <div className="absolute top-3 left-3 w-8 h-8 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
             <div className="absolute top-3 right-3 w-8 h-8 border-r-4 border-t-4 border-black rounded-tr-lg"></div>
             <div className="absolute bottom-3 left-3 w-8 h-8 border-l-4 border-b-4 border-black rounded-bl-lg"></div>
@@ -158,15 +275,15 @@ export default function GamePlay() {
         </div>
 
         <div className="flex gap-4 w-full max-w-[500px]">
-          <button 
+          <button
             onClick={() => handleAnswer(false)}
             disabled={showModal}
             className="flex-1 bg-[#ff4d6d] hover:bg-[#e63956] active:bg-[#cc2542] disabled:opacity-50 disabled:cursor-not-allowed text-white py-6 rounded-2xl border-4 border-black font-bold text-2xl shadow-[0_6px_0_#000] hover:shadow-[0_4px_0_#000] hover:translate-y-[2px] active:shadow-[0_2px_0_#000] active:translate-y-[4px] transition-all"
           >
             FALSO
           </button>
-          
-          <button 
+
+          <button
             onClick={() => handleAnswer(true)}
             disabled={showModal}
             className="flex-1 bg-[#4ecdc4] hover:bg-[#3db9b0] active:bg-[#2ca59c] disabled:opacity-50 disabled:cursor-not-allowed text-white py-6 rounded-2xl border-4 border-black font-bold text-2xl shadow-[0_6px_0_#000] hover:shadow-[0_4px_0_#000] hover:translate-y-[2px] active:shadow-[0_2px_0_#000] active:translate-y-[4px] transition-all"

@@ -1,14 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { fetchUserProgress } from "../services/api";
 
 export default function PythonMenu() {
   const navigate = useNavigate();
+  const { isAuthenticated, token } = useAuth();
   const [level, setLevel] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("pythonLevel");
-    if (saved) setLevel(parseInt(saved));
-  }, []);
+    const loadLevel = async () => {
+      if (isAuthenticated && token) {
+        try {
+          const progress = await fetchUserProgress(token);
+          setLevel(progress.python?.level || 1);
+        } catch (error) {
+          console.error('Error loading progress:', error);
+          setLevel(1);
+        }
+      } else {
+        const saved = localStorage.getItem("pythonLevel");
+        setLevel(saved ? parseInt(saved) : 1);
+      }
+      setLoading(false);
+    };
+    loadLevel();
+  }, [isAuthenticated, token]);
 
   return (
     <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">

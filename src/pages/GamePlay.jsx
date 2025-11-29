@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import { fetchQuestions } from "../services/api";
+import { fetchQuestions, fetchUserProgress, updateUserProgress } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 // --- Mezclar preguntas ---
 function shuffleArray(array) {
@@ -13,37 +14,55 @@ function shuffleArray(array) {
 
 export default function GamePlay() {
   const navigate = useNavigate();
+  const { user, token, isAuthenticated } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [level, setLevel] = useState(1);
 
   // Estados para el drag
   const [isDragging, setIsDragging] = useState(false);
   const cardRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Obtener nivel actual
-  const level = parseInt(localStorage.getItem("pythonLevel") || "1");
-
-  // Cargar preguntas del nivel desde la API
+  // Cargar progreso del usuario
   useEffect(() => {
-    const loadQuestions = async () => {
+    const loadProgress = async () => {
       try {
-        setLoading(true);
-        const data = await fetchQuestions('python', level);
-        setQuestions(shuffleArray(data));
+        if (isAuthenticated && token) {
+          const progress = await fetchUserProgress(token);
+          setLevel(progress.python?.level || 1);
+        } else {
+          setLevel(parseInt(localStorage.getItem("pythonLevel") || "1"));
+        }
       } catch (error) {
-        console.error('Error loading questions:', error);
-        navigate('/python');
-      } finally {
-        setLoading(false);
+        console.error('Error loading progress:', error);
+        setLevel(1);
       }
     };
+    loadProgress();
+  }, [isAuthenticated, token]);
 
-    loadQuestions();
+  // Cargar preguntas del nivel
+  useEffect(() => {
+    if (level) {
+      const loadQuestions = async () => {
+        try {
+          setLoading(true);
+          const data = await fetchQuestions('python', level);
+          setQuestions(shuffleArray(data));
+        } catch (error) {
+          console.error('Error loading questions:', error);
+          navigate('/python');
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadQuestions();
+    }
   }, [level, navigate]);
 
   // Animación flotante
@@ -177,10 +196,19 @@ export default function GamePlay() {
     }, 1500);
   };
 
-  const nextCard = (direction) => {
+  const nextCard = async (direction) => {
     if (currentCardIndex >= questions.length - 1) {
-      const currentLevel = parseInt(localStorage.getItem("pythonLevel") || "1");
-      localStorage.setItem("pythonLevel", currentLevel + 1);
+      const newLevel = level + 1;
+
+      if (isAuthenticated && token) {
+        try {
+          await updateUserProgress(token, 'python', { current_level: newLevel });
+        } catch (error) {
+          console.error('Error updating progress:', error);
+        }
+      } else {
+        localStorage.setItem("pythonLevel", newLevel);
+      }
 
       gsap.to("#game-card", {
         scale: 0,

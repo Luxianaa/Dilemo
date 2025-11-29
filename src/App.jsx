@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 
 // Importa tus pantallas
 import HeroSection from "./components/HeroSection";
@@ -9,27 +10,41 @@ import GameGit from "./pages/GameGit";
 import QuizMenu from "./pages/QuizMenu";
 import GameQuiz from "./pages/GameQuiz";
 import SparklesCursor from "./components/SparklesCursor";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Leaderboard from "./pages/Leaderboard";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <SparklesCursor />
-      <Routes>
-        {/* Pantalla principal */}
-        <Route path="/" element={<HeroSection />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <SparklesCursor />
+        <Routes>
+          {/* Auth */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Python */}
-        <Route path="/python" element={<PythonMenu />} />
-        <Route path="/game" element={<GamePlay />} />
-        
-        {/* Git */}
-        <Route path="/git" element={<GitMenu />} />
-        <Route path="/game-git" element={<GameGit />} />
-        
-        {/* Logo Quiz */}
-        <Route path="/logoquiz" element={<QuizMenu />} />
-        <Route path="/game-quiz" element={<GameQuiz />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Profile & Leaderboard */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+
+          {/* Pantalla principal */}
+          <Route path="/" element={<HeroSection />} />
+
+          {/* Python */}
+          <Route path="/python" element={<PythonMenu />} />
+          <Route path="/game" element={<GamePlay />} />
+
+          {/* Git */}
+          <Route path="/git" element={<GitMenu />} />
+          <Route path="/game-git" element={<GameGit />} />
+
+          {/* Logo Quiz */}
+          <Route path="/logoquiz" element={<QuizMenu />} />
+          <Route path="/game-quiz" element={<GameQuiz />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

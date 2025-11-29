@@ -17,11 +17,17 @@ app.use('/logos', express.static(path.join(__dirname, '../src/assets/logos')));
 const categoriesRoutes = require('./routes/categories');
 const levelsRoutes = require('./routes/levels');
 const questionsRoutes = require('./routes/questions');
+const authRoutes = require('./routes/auth');
+const progressRoutes = require('./routes/progress');
+const leaderboardRoutes = require('./routes/leaderboard');
 
 // Usar rutas
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/levels', levelsRoutes);
 app.use('/api/questions', questionsRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

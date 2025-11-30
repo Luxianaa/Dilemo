@@ -28,6 +28,24 @@ export const AuthProvider = ({ children }) => {
                         coins: decoded.coins || 0,
                         total_score: decoded.total_score || 0
                     });
+
+                    // Recargar coins desde el servidor
+                    fetch(`${API_URL}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${storedToken}`
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.user) {
+                                setUser(prev => ({
+                                    ...prev,
+                                    coins: data.user.coins || 0,
+                                    total_score: data.user.total_score || 0
+                                }));
+                            }
+                        })
+                        .catch(err => console.error('Error loading user data:', err));
                 } else {
                     // Token expirado
                     localStorage.removeItem('token');

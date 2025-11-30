@@ -5,28 +5,34 @@ const authMiddleware = require('../middleware/auth');
 
 // POST /api/users/coins - Agregar monedas al usuario
 router.post('/coins', authMiddleware, async (req, res) => {
+  try {
     const { amount } = req.body;
     const userId = req.user.id;
 
-    if (!amount || isNaN(amount)) {
-        return res.status(400).json({ error: 'Cantidad inválida' });
+    if (!amount || amount < 0) {
+      return res.status(400).json({ error: 'Cantidad inválida' });
     }
 
-    try {
-        // Actualizar monedas
-        await db.query(
-            'UPDATE users SET coins = coins + ? WHERE id = ?',
-            [amount, userId]
-        );
+    // Actualizar coins en la BD
+    await db.query(
+      'UPDATE users SET coins = coins + ? WHERE id = ?',
+      [amount, userId]
+    );
 
-        // Obtener monedas actualizadas
-        const [user] = await db.query('SELECT coins FROM users WHERE id = ?', [userId]);
+    // Obtener el nuevo total
+    const [rows] = await db.query(
+      'SELECT coins FROM users WHERE id = ?',
+      [userId]
+    );
 
-        res.json({ coins: user[0].coins });
-    } catch (error) {
-        console.error('Error al agregar monedas:', error);
-        res.status(500).json({ error: 'Error al actualizar monedas' });
-    }
+    res.json({
+      message: 'Monedas agregadas exitosamente',
+      coins: rows[0].coins
+    });
+  } catch (error) {
+    console.error('Error adding coins:', error);
+    res.status(500).json({ error: 'Error al agregar monedas' });
+  }
 });
 
 module.exports = router;

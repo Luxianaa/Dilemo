@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { logoQuizLevels } from "../data/logoQuizLevels";
 import energyFull from "../assets/full-energy.svg";
 import energyEmpty from "../assets/energy_empty.svg";
+import { useAuth } from "../context/AuthContext";
+import { updateUserProgress } from "../services/api";
 
 function shuffleArray(array) {
   return array
@@ -14,6 +16,7 @@ function shuffleArray(array) {
 
 export default function GameQuiz() {
   const navigate = useNavigate();
+  const { user, token, addCoins } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
@@ -72,10 +75,26 @@ export default function GameQuiz() {
     }, 1000);
   };
 
-  const nextCard = (direction) => {
+  const nextCard = async (direction) => {
     if (currentCardIndex >= totalCards - 1) {
       const currentLevel = parseInt(localStorage.getItem("logoQuizLevel") || "1");
-      localStorage.setItem("logoQuizLevel", currentLevel + 1);
+      const nextLevel = currentLevel + 1;
+
+      localStorage.setItem("logoQuizLevel", nextLevel);
+
+      // Guardar progreso y dar monedas si está autenticado
+      if (user && token) {
+        try {
+          await addCoins(50);
+          await updateUserProgress(token, 'logoquiz', {
+            current_level: nextLevel,
+            lives: lives
+          });
+        } catch (error) {
+          console.error("Error saving progress:", error);
+        }
+      }
+
       navigate("/logoquiz");
       return;
     }

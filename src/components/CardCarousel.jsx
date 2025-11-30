@@ -11,9 +11,9 @@ export default function CardCarousel() {
   const navigate = useNavigate();
 
   const cards = [
-    { title: "python", img: pythonLogo },
-    { title: "git", img: gitLogo },
-    { title: "logoquiz", img: quizLogo },
+    { title: "python", img: pythonLogo, color: "#FFD93D" },
+    { title: "git", img: gitLogo, color: "#FF6B6B" },
+    { title: "logoquiz", img: quizLogo, color: "#4D96FF" },
   ];
 
   const [index, setIndex] = useState(0);
@@ -81,36 +81,36 @@ export default function CardCarousel() {
           className="scale-90 opacity-70 cursor-pointer transition"
           onClick={prevCard}
         >
-          <div className="bg-[#f1e6ff] rounded-2xl w-[220px] h-[300px] shadow-xl flex items-center justify-center">
+          <div className="bg-white rounded-3xl w-[220px] h-[300px] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
             <img src={cards[(index - 1 + cards.length) % cards.length].img} className="w-20 opacity-60" />
           </div>
         </div>
 
         {/* Centro */}
-        {/* Centro */}
-<div
-  ref={centerRef}
-  className="z-20 cursor-pointer"
-  onClick={() => navigate(`/${cards[index].title}`)}
->
-  <div className="relative bg-white w-[260px] h-[350px] rounded-3xl border-[4px] border-black shadow-[0_8px_0_#000] flex flex-col items-center justify-start">
+        <div
+          ref={centerRef}
+          className="z-20 cursor-pointer"
+          onClick={() => navigate(`/${cards[index].title}`)}
+        >
+          <div className="relative bg-white w-[280px] h-[380px] rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-between p-6 hover:translate-y-[-5px] transition-transform">
 
-    {/* Esquinas decorativas */}
-    <div className="absolute top-3 left-3 w-6 h-6 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
-    <div className="absolute top-3 right-3 w-6 h-6 border-r-4 border-t-4 border-black rounded-tr-lg"></div>
-    <div className="absolute bottom-3 left-3 w-6 h-6 border-l-4 border-b-4 border-black rounded-bl-lg"></div>
-    <div className="absolute bottom-3 right-3 w-6 h-6 border-r-4 border-b-4 border-black rounded-br-lg"></div>
+            {/* Título */}
+            <div className={`w-full text-white text-center text-2xl font-black py-3 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]`} style={{ backgroundColor: cards[index].color }}>
+              {cards[index].title.toUpperCase()}
+            </div>
 
-    {/* Barra azul del título */}
-    <div className="w-full bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 border-b-4 border-black rounded-t-2xl">
-      {cards[index].title.toUpperCase()}
-    </div>
+            {/* Logo */}
+            <div className="flex-1 flex items-center justify-center">
+              <img src={cards[index].img} className="w-32 drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]" />
+            </div>
 
-    {/* Logo */}
-    <img src={cards[index].img} className="w-28 mt-8" />
+            {/* Botón Jugar */}
+            <div className="bg-black text-white px-6 py-2 rounded-full font-bold text-lg">
+              JUGAR
+            </div>
 
-  </div>
-</div>
+          </div>
+        </div>
 
 
         {/* Derecha */}
@@ -119,7 +119,7 @@ export default function CardCarousel() {
           className="scale-90 opacity-70 cursor-pointer transition"
           onClick={nextCard}
         >
-          <div className="bg-[#f1e6ff] rounded-2xl w-[220px] h-[300px] shadow-xl flex items-center justify-center">
+          <div className="bg-white rounded-3xl w-[220px] h-[300px] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
             <img src={cards[(index + 1) % cards.length].img} className="w-20 opacity-60" />
           </div>
         </div>
@@ -127,4 +127,3 @@ export default function CardCarousel() {
     </div>
   );
 }
-                                       

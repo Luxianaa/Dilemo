@@ -65,7 +65,17 @@ export const AuthProvider = ({ children }) => {
 
             return { success: true };
         } catch (error) {
-            return { success: false, error: error.message };
+            console.error('Register error:', error);
+
+            // Detectar error de conexión
+            if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                return {
+                    success: false,
+                    error: 'No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:3001'
+                };
+            }
+
+            return { success: false, error: error.message || 'Error al registrar' };
         }
     };
 
@@ -95,7 +105,17 @@ export const AuthProvider = ({ children }) => {
 
             return { success: true };
         } catch (error) {
-            return { success: false, error: error.message };
+            console.error('Login error:', error);
+
+            // Detectar error de conexión
+            if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                return {
+                    success: false,
+                    error: 'No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:3001'
+                };
+            }
+
+            return { success: false, error: error.message || 'Error al iniciar sesión' };
         }
     };
 

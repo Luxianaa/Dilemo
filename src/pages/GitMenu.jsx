@@ -1,75 +1,55 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { fetchUserProgress } from "../services/api";
 
 export default function GitMenu() {
   const navigate = useNavigate();
-  const { isAuthenticated, token } = useAuth();
   const [level, setLevel] = useState(1);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadLevel = async () => {
-      if (isAuthenticated && token) {
-        try {
-          const progress = await fetchUserProgress(token);
-          setLevel(progress.git?.level || 1);
-        } catch (error) {
-          console.error('Error loading progress:', error);
-          setLevel(1);
-        }
-      } else {
-        const saved = localStorage.getItem("gitLevel");
-        setLevel(saved ? parseInt(saved) : 1);
-      }
-      setLoading(false);
-    };
-    loadLevel();
-  }, [isAuthenticated, token]);
+    const saved = localStorage.getItem("gitLevel");
+    if (saved) setLevel(parseInt(saved));
+  }, []);
+
   return (
-    <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
+    <div className="h-screen w-full bg-[#FF6B6B] flex flex-col items-center justify-center px-4 relative overflow-hidden font-sans">
+
+      {/* Patrón de fondo */}
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
 
       {/* Botón regresar */}
       <button
         onClick={() => navigate("/")}
-        className="absolute top-5 left-5 bg-white hover:bg-gray-100 text-black p-3 rounded-xl shadow-lg border-2 border-black z-50 transition-all hover:scale-110"
+        className="absolute top-6 left-6 bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold z-50"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-        </svg>
+        VOLVER
       </button>
 
-      {/* Carta */}
-      <div className="bg-white w-[90%] max-w-md rounded-3xl shadow-[0_10px_0_#000] p-10 relative border-[4px] border-black z-10">
-        {/* Esquinas decorativas */}
-        <div className="absolute top-3 left-3 w-6 h-6 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
-        <div className="absolute top-3 right-3 w-6 h-6 border-r-4 border-t-4 border-black rounded-tr-lg"></div>
-        <div className="absolute bottom-3 left-3 w-6 h-6 border-l-4 border-b-4 border-black rounded-bl-lg"></div>
-        <div className="absolute bottom-3 right-3 w-6 h-6 border-r-4 border-b-4 border-black rounded-br-lg"></div>
+      {/* Carta de Menú */}
+      <div className="bg-white w-full max-w-sm rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 relative z-10 flex flex-col items-center">
 
-        {/* Título */}
-        <div className="bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 rounded-lg border-4 border-black shadow-md">
-          GIT
+        {/* Icono/Título */}
+        <div className="bg-[#FFD93D] w-24 h-24 rounded-full border-4 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <svg className="w-14 h-14 text-black" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.62 11.11l-8.97-8.97a1.32 1.32 0 00-1.87 0l-1.86 1.86 2.36 2.36c.4-.14.85-.1 1.22.13.38.24.62.65.62 1.09 0 .39-.18.76-.48 1l2.26 2.26c.89-.31 1.92.07 2.42.91.5.84.3 1.93-.46 2.54-.76.61-1.86.52-2.53-.2-.67-.72-.78-1.83-.25-2.67l-2.1-2.1v5.53c.15.07.29.17.42.29.76.76.76 2 0 2.76-.76.76-2 .76-2.76 0-.76-.76-.76-2 0-2.76.13-.13.27-.23.42-.29v-5.59c-.15-.07-.29-.17-.42-.29-.79-.79-.79-2.04 0-2.76.13-.13.27-.23.42-.29L9.14 5.36 2.38 12.11a1.32 1.32 0 000 1.87l8.97 8.97c.52.52 1.35.52 1.87 0l8.98-8.97c.51-.51.51-1.35 0-1.87z" />
+          </svg>
         </div>
 
-        {/* Selector de niveles */}
-        <div className="mt-6 flex flex-col items-center gap-4">
-          <h1 className="text-lg font-semibold mb-3">Level:</h1>
+        <h1 className="text-4xl font-black text-black mb-2 tracking-tight">GIT</h1>
+        <p className="text-gray-600 font-bold mb-8 text-center">Control de versiones</p>
 
-          <div className="flex flex-col gap-3 text-black items-center">
-            <h1 className="font-bold text-3xl">{level}</h1>
-          </div>
+        {/* Info Nivel */}
+        <div className="w-full bg-gray-100 rounded-2xl border-4 border-black p-4 mb-8 flex justify-between items-center">
+          <span className="font-bold text-xl">NIVEL ACTUAL</span>
+          <span className="bg-black text-white px-4 py-1 rounded-lg font-black text-xl">{level}</span>
         </div>
 
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <button
-            onClick={() => navigate("/game-git")}
-            className="w-full max-w-xs bg-[#4b5bfe] hover:bg-[#3c49d0] text-white py-3 rounded-xl border-4 border-black font-semibold text-lg shadow-lg transition"
-          >
-            Nuevo Juego
-          </button>
-        </div>
+        {/* Botón Jugar */}
+        <button
+          onClick={() => navigate("/game-git")}
+          className="w-full bg-[#6BCB77] text-white py-5 rounded-2xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none transition-all font-black text-2xl tracking-wider"
+        >
+          JUGAR AHORA
+        </button>
       </div>
     </div>
   );

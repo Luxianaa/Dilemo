@@ -9,17 +9,16 @@ import GitMenu from "./pages/GitMenu";
 import GameGit from "./pages/GameGit";
 import QuizMenu from "./pages/QuizMenu";
 import GameQuiz from "./pages/GameQuiz";
-import SparklesCursor from "./components/SparklesCursor";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <SparklesCursor />
         <Routes>
           {/* Auth */}
           <Route path="/login" element={<Login />} />
@@ -28,6 +27,7 @@ export default function App() {
           {/* Profile & Leaderboard */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/settings" element={<Settings />} />
 
           {/* Pantalla principal */}
           <Route path="/" element={<HeroSection />} />

@@ -1,85 +1,54 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { fetchUserProgress } from "../services/api";
+import pythonLogo from "../assets/python.svg";
 
 export default function PythonMenu() {
   const navigate = useNavigate();
-  const { isAuthenticated, token } = useAuth();
   const [level, setLevel] = useState(1);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadLevel = async () => {
-      if (isAuthenticated && token) {
-        try {
-          const progress = await fetchUserProgress(token);
-          setLevel(progress.python?.level || 1);
-        } catch (error) {
-          console.error('Error loading progress:', error);
-          setLevel(1);
-        }
-      } else {
-        const saved = localStorage.getItem("pythonLevel");
-        setLevel(saved ? parseInt(saved) : 1);
-      }
-      setLoading(false);
-    };
-    loadLevel();
-  }, [isAuthenticated, token]);
+    const saved = localStorage.getItem("pythonLevel");
+    if (saved) setLevel(parseInt(saved));
+  }, []);
 
   return (
-    <div className="h-screen w-full bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex flex-col items-center justify-center px-4 relative overflow-hidden cursor-sparkle">
+    <div className="h-screen w-full bg-[#FFD93D] flex flex-col items-center justify-center px-4 relative overflow-hidden font-sans">
+
+      {/* Patrón de fondo */}
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
+
       {/* Botón regresar */}
       <button
         onClick={() => navigate("/")}
-        className="absolute top-5 left-5 bg-white hover:bg-gray-100 text-black p-3 rounded-xl shadow-lg border-2 border-black z-50 transition-all hover:scale-110"
+        className="absolute top-6 left-6 bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold z-50"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={3}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
+        VOLVER
       </button>
 
-      {/* Carta */}
-      <div className="bg-white w-[90%] max-w-md rounded-3xl shadow-[0_10px_0_#000] p-10 relative border-[4px] border-black">
-        {/* Esquinas decorativas */}
-        <div className="absolute top-3 left-3 w-6 h-6 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
-        <div className="absolute top-3 right-3 w-6 h-6 border-r-4 border-t-4 border-black rounded-tr-lg"></div>
-        <div className="absolute bottom-3 left-3 w-6 h-6 border-l-4 border-b-4 border-black rounded-bl-lg"></div>
-        <div className="absolute bottom-3 right-3 w-6 h-6 border-r-4 border-b-4 border-black rounded-br-lg"></div>
+      {/* Carta de Menú */}
+      <div className="bg-white w-full max-w-sm rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 relative z-10 flex flex-col items-center">
 
-        {/* Título */}
-        <div className="bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 rounded-lg border-4 border-black shadow-md">
-          PYTHON
+        {/* Icono/Título */}
+        <div className="bg-[#4D96FF] w-24 h-24 rounded-full border-4 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <img src={pythonLogo} alt="Python" className="w-14 h-14" />
         </div>
 
-        {/* Selector de niveles */}
-        <div className="mt-6 flex flex-col items-center gap-4">
-          <h1 className="text-lg font-semibold mb-3">Level:</h1>
+        <h1 className="text-4xl font-black text-black mb-2 tracking-tight">PYTHON</h1>
+        <p className="text-gray-600 font-bold mb-8 text-center">Domina el código</p>
 
-          <div className="flex flex-col gap-3 text-black items-center">
-            <h1 className="font-bold text-3xl">{level}</h1>
-          </div>
+        {/* Info Nivel */}
+        <div className="w-full bg-gray-100 rounded-2xl border-4 border-black p-4 mb-8 flex justify-between items-center">
+          <span className="font-bold text-xl">NIVEL ACTUAL</span>
+          <span className="bg-black text-white px-4 py-1 rounded-lg font-black text-xl">{level}</span>
         </div>
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <button
-            onClick={() => navigate("/game")}
-            className="w-full max-w-xs bg-[#4b5bfe] hover:bg-[#3c49d0] text-white py-3 rounded-xl border-4 border-black font-semibold text-lg shadow-lg transition"
-          >
-            Nuevo Juego
-          </button>
-        </div>
+
+        {/* Botón Jugar */}
+        <button
+          onClick={() => navigate("/game")}
+          className="w-full bg-[#6BCB77] text-white py-5 rounded-2xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none transition-all font-black text-2xl tracking-wider"
+        >
+          JUGAR AHORA
+        </button>
       </div>
     </div>
   );

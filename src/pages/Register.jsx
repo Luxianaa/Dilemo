@@ -51,29 +51,41 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex justify-center items-center px-4 py-8">
-            <div className="w-full max-w-md">
+        <div className="min-h-screen bg-[#FFD93D] flex justify-center items-center px-4 py-8 font-sans relative overflow-hidden">
+
+            {/* Patrón de fondo */}
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
+
+            {/* Botón Volver */}
+            <button
+                onClick={() => navigate("/")}
+                className="absolute top-6 left-6 bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold z-50"
+            >
+                VOLVER
+            </button>
+
+            <div className="w-full max-w-md relative z-10">
                 {/* Card */}
-                <div className="bg-white rounded-3xl border-4 border-black shadow-[0_8px_0_#000] p-8">
+                <div className="bg-white rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
 
                     {/* Título */}
                     <div className="text-center mb-6">
-                        <h1 className="text-4xl font-extrabold text-black mb-2">DILEMO</h1>
-                        <p className="text-gray-600">Crear Cuenta</p>
+                        <h1 className="text-5xl font-black text-black mb-2">DILEMO</h1>
+                        <p className="text-gray-600 font-bold">Crear Cuenta</p>
                     </div>
 
                     {/* Formulario */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Error */}
                         {error && (
-                            <div className="bg-red-100 border-4 border-red-500 text-red-700 px-4 py-3 rounded-lg text-sm">
+                            <div className="bg-[#FF6B6B] border-4 border-black text-white px-4 py-3 rounded-xl font-bold text-center text-sm">
                                 {error}
                             </div>
                         )}
 
                         {/* Username */}
                         <div>
-                            <label className="block text-black font-bold mb-2 text-sm">
+                            <label className="block text-black font-bold mb-2">
                                 Nombre de Usuario
                             </label>
                             <input
@@ -84,14 +96,14 @@ export default function Register() {
                                 required
                                 minLength={3}
                                 maxLength={50}
-                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#39d3f7] text-black"
+                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#4D96FF] text-black font-medium"
                                 placeholder="usuario123"
                             />
                         </div>
 
                         {/* Nombre para Mostrar */}
                         <div>
-                            <label className="block text-black font-bold mb-2 text-sm">
+                            <label className="block text-black font-bold mb-2">
                                 Nombre para Mostrar (opcional)
                             </label>
                             <input
@@ -100,14 +112,14 @@ export default function Register() {
                                 value={formData.displayName}
                                 onChange={handleChange}
                                 maxLength={100}
-                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#39d3f7] text-black"
+                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#4D96FF] text-black font-medium"
                                 placeholder="Tu Nombre"
                             />
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label className="block text-black font-bold mb-2 text-sm">
+                            <label className="block text-black font-bold mb-2">
                                 Email
                             </label>
                             <input
@@ -116,14 +128,14 @@ export default function Register() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#39d3f7] text-black"
+                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#4D96FF] text-black font-medium"
                                 placeholder="tu@email.com"
                             />
                         </div>
 
                         {/* Contraseña */}
                         <div>
-                            <label className="block text-black font-bold mb-2 text-sm">
+                            <label className="block text-black font-bold mb-2">
                                 Contraseña
                             </label>
                             <input
@@ -132,14 +144,14 @@ export default function Register() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#39d3f7] text-black"
+                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#4D96FF] text-black font-medium"
                                 placeholder="••••••"
                             />
                         </div>
 
                         {/* Confirmar Contraseña */}
                         <div>
-                            <label className="block text-black font-bold mb-2 text-sm">
+                            <label className="block text-black font-bold mb-2">
                                 Confirmar Contraseña
                             </label>
                             <input
@@ -148,8 +160,7 @@ export default function Register() {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 required
-
-                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#39d3f7] text-black"
+                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#4D96FF] text-black font-medium"
                                 placeholder="••••••"
                             />
                         </div>
@@ -158,7 +169,7 @@ export default function Register() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#4ecdc4] hover:bg-[#3db9b0] text-white py-4 rounded-2xl border-4 border-black font-bold text-xl shadow-[0_6px_0_#000] hover:shadow-[0_4px_0_#000] hover:translate-y-[2px] active:shadow-[0_2px_0_#000] active:translate-y-[4px] transition-all disabled:opacity-50 mt-6"
+                            className="w-full bg-[#6BCB77] text-white py-4 rounded-2xl border-4 border-black font-black text-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none transition-all disabled:opacity-50 mt-4"
                         >
                             {loading ? 'REGISTRANDO...' : 'CREAR CUENTA'}
                         </button>
@@ -166,11 +177,11 @@ export default function Register() {
 
                     {/* Link a Login */}
                     <div className="mt-6 text-center">
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-600 font-medium text-sm">
                             ¿Ya tienes cuenta?{' '}
                             <Link
                                 to="/login"
-                                className="text-[#39d3f7] font-bold hover:underline"
+                                className="text-[#4D96FF] font-bold hover:underline"
                             >
                                 Inicia sesión
                             </Link>

@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import { fetchQuestions, fetchUserProgress, updateUserProgress } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { pythonLevels } from "../data/pythonLevels";
+import pythonLogo from "../assets/python.svg";
 
-// --- Mezclar preguntas ---
 function shuffleArray(array) {
   return array
     .map((value) => ({ value, sort: Math.random() }))
@@ -14,164 +13,39 @@ function shuffleArray(array) {
 
 export default function GamePlay() {
   const navigate = useNavigate();
-  const { user, token, isAuthenticated } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [level, setLevel] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Estados para el drag
-  const [isDragging, setIsDragging] = useState(false);
-  const cardRef = useRef(null);
-  const containerRef = useRef(null);
+  const level = parseInt(localStorage.getItem("pythonLevel") || "1");
 
-  // Cargar progreso del usuario
   useEffect(() => {
-    const loadProgress = async () => {
-      try {
-        if (isAuthenticated && token) {
-          const progress = await fetchUserProgress(token);
-          setLevel(progress.python?.level || 1);
-        } else {
-          setLevel(parseInt(localStorage.getItem("pythonLevel") || "1"));
-        }
-      } catch (error) {
-        console.error('Error loading progress:', error);
-        setLevel(1);
-      }
-    };
-    loadProgress();
-  }, [isAuthenticated, token]);
+    const currentQuestions =
+      pythonLevels[level] || pythonLevels[Object.keys(pythonLevels).length];
 
-  // Cargar preguntas del nivel
+    setQuestions(shuffleArray(currentQuestions));
+    setIsLoading(false);
+  }, [level]);
+
   useEffect(() => {
-    if (level) {
-      const loadQuestions = async () => {
-        try {
-          setLoading(true);
-          const data = await fetchQuestions('python', level);
-          setQuestions(shuffleArray(data));
-        } catch (error) {
-          console.error('Error loading questions:', error);
-          navigate('/python');
-        } finally {
-          setLoading(false);
-        }
-      };
-      loadQuestions();
+    if (questions.length > 0) {
+      gsap.fromTo("#game-card",
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+      );
     }
-  }, [level, navigate]);
+  }, [currentCardIndex, questions]);
 
-  // Animación flotante
-  useEffect(() => {
-    if (!loading) {
-      gsap.to("#game-card", {
-        y: -8,
-        duration: 2.5,
-        ease: "power1.inOut",
-        yoyo: true,
-        repeat: -1,
-      });
-    }
-  }, [loading]);
-
-  if (loading) {
+  if (isLoading || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex justify-center items-center">
-        <div className="text-white text-2xl">Cargando preguntas...</div>
+      <div className="h-screen w-full bg-[#FFD93D] flex items-center justify-center border-8 border-black">
+        <div className="text-black text-4xl font-black tracking-tighter">CARGANDO...</div>
       </div>
     );
   }
-
-  if (questions.length === 0) return null;
-
-  // === DRAG HANDLERS ===
-  const startDrag = (e) => {
-    if (isDragging || showModal) return;
-
-    setIsDragging(true);
-    const startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
-
-    gsap.killTweensOf("#game-card");
-
-    if (cardRef.current) {
-      cardRef.current.style.transition = 'none';
-    }
-
-    const onDrag = (moveEvent) => {
-      if (!cardRef.current) return;
-
-      const currentX = moveEvent.type === 'mousemove' ? moveEvent.clientX : moveEvent.touches[0].clientX;
-      const diffX = currentX - startX;
-      const rotation = diffX * 0.1;
-
-      cardRef.current.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
-
-      if (containerRef.current) {
-        if (diffX > 50) {
-          containerRef.current.style.backgroundColor = 'rgba(78, 205, 196, 0.1)';
-        } else if (diffX < -50) {
-          containerRef.current.style.backgroundColor = 'rgba(255, 77, 109, 0.1)';
-        } else {
-          containerRef.current.style.backgroundColor = 'transparent';
-        }
-      }
-    };
-
-    const endDrag = (endEvent) => {
-      setIsDragging(false);
-
-      const currentX = endEvent.type === 'mouseup' ? endEvent.clientX : endEvent.changedTouches[0].clientX;
-      const diffX = currentX - startX;
-
-      if (containerRef.current) {
-        containerRef.current.style.backgroundColor = 'transparent';
-      }
-
-      if (cardRef.current) {
-        cardRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-      }
-
-      if (diffX > 100) {
-        if (cardRef.current) {
-          cardRef.current.style.transform = 'translateX(150%) rotate(20deg)';
-          cardRef.current.style.opacity = '0';
-        }
-        setTimeout(() => handleAnswer(true), 300);
-      } else if (diffX < -100) {
-        if (cardRef.current) {
-          cardRef.current.style.transform = 'translateX(-150%) rotate(-20deg)';
-          cardRef.current.style.opacity = '0';
-        }
-        setTimeout(() => handleAnswer(false), 300);
-      } else {
-        if (cardRef.current) {
-          cardRef.current.style.transform = 'translateX(0) rotate(0)';
-        }
-
-        gsap.to("#game-card", {
-          y: -8,
-          duration: 2.5,
-          ease: "power1.inOut",
-          yoyo: true,
-          repeat: -1,
-        });
-      }
-
-      document.removeEventListener('mousemove', onDrag);
-      document.removeEventListener('touchmove', onDrag);
-      document.removeEventListener('mouseup', endDrag);
-      document.removeEventListener('touchend', endDrag);
-    };
-
-    document.addEventListener('mousemove', onDrag);
-    document.addEventListener('touchmove', onDrag);
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchend', endDrag);
-  };
 
   const handleAnswer = (userAnswer) => {
     const correct = questions[currentCardIndex].answer === userAnswer;
@@ -183,152 +57,116 @@ export default function GamePlay() {
       setLives(newLives);
 
       if (newLives <= 0) {
-        setTimeout(() => {
-          navigate("/python");
-        }, 1500);
+        setTimeout(() => navigate("/python"), 1000);
         return;
       }
     }
 
     setTimeout(() => {
       setShowModal(false);
-      nextCard(userAnswer ? "true" : "false");
-    }, 1500);
+      nextCard(correct ? "true" : "false");
+    }, 1000);
   };
 
-  const nextCard = async (direction) => {
+  const nextCard = (direction) => {
     if (currentCardIndex >= questions.length - 1) {
-      const newLevel = level + 1;
-
-      if (isAuthenticated && token) {
-        try {
-          await updateUserProgress(token, 'python', { current_level: newLevel });
-        } catch (error) {
-          console.error('Error updating progress:', error);
-        }
-      } else {
-        localStorage.setItem("pythonLevel", newLevel);
-      }
-
-      gsap.to("#game-card", {
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
-        ease: "back.in(1.7)",
-        onComplete: () => navigate("/python"),
-      });
-
+      const currentLevel = parseInt(localStorage.getItem("pythonLevel") || "1");
+      localStorage.setItem("pythonLevel", currentLevel + 1);
+      navigate("/python");
       return;
     }
 
-    setCurrentCardIndex((prev) => prev + 1);
-
-    if (cardRef.current) {
-      cardRef.current.style.transition = 'none';
-      cardRef.current.style.transform = 'translateX(0) rotate(0) scale(0.8)';
-      cardRef.current.style.opacity = '0';
-
-      setTimeout(() => {
-        if (cardRef.current) {
-          cardRef.current.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-          cardRef.current.style.transform = 'translateX(0) rotate(0) scale(1)';
-          cardRef.current.style.opacity = '1';
-        }
-
-        setTimeout(() => {
-          gsap.to("#game-card", {
-            y: -8,
-            duration: 2.5,
-            ease: "power1.inOut",
-            yoyo: true,
-            repeat: -1,
-          });
-        }, 400);
-      }, 50);
-    }
+    gsap.to("#game-card", {
+      x: direction === "true" ? 500 : -500,
+      rotation: direction === "true" ? 15 : -15,
+      opacity: 0,
+      duration: 0.3,
+      onComplete: () => {
+        setCurrentCardIndex((prev) => prev + 1);
+        gsap.set("#game-card", { x: 0, rotation: 0, opacity: 0 });
+      },
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a2332] via-[#243447] to-[#2d4457] flex justify-center items-center overflow-hidden relative px-4 cursor-sparkle">
+    <div className="min-h-screen bg-[#FFD93D] flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
 
-      {/* Botón regresar */}
-      <button
-        onClick={() => navigate("/python")}
-        className="absolute top-5 left-5 bg-white hover:bg-gray-100 text-black p-3 rounded-xl shadow-lg border-2 border-black z-50 transition-all hover:scale-110"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+      {/* Patrón de fondo */}
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
 
-      {/* Vidas (rayitos) */}
-      <div className="absolute top-5 right-5 flex gap-2 z-50">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className={`transition-all duration-300 ${i < lives ? 'opacity-100 scale-100' : 'opacity-30 scale-75'}`}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 24 24" fill={i < lives ? "#FFD700" : "#666"} stroke="#000" strokeWidth="1">
-              <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
-            </svg>
-          </div>
-        ))}
-      </div>
-
-      {/* Contador simple */}
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white/90 text-black px-5 py-2 rounded-md font-bold text-xl border-2 border-black">
-          {currentCardIndex + 1}/{questions.length}
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-10 relative" ref={containerRef}>
-
-        {/* Carta con estilo consistente */}
-        <div
-          id="game-card"
-          ref={cardRef}
-          className="w-[350px] h-[420px] cursor-grab active:cursor-grabbing"
-          onMouseDown={startDrag}
-          onTouchStart={startDrag}
+      {/* Header */}
+      <div className="w-full max-w-md flex justify-between items-center mb-8 z-10">
+        <button
+          onClick={() => navigate("/python")}
+          className="bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold"
         >
-          <div className={`relative bg-white rounded-3xl border-[4px] ${showModal ? (isCorrect ? 'border-green-500' : 'border-red-500') : 'border-black'} shadow-[0_8px_0_#000] p-8 min-h-[400px] flex flex-col items-center justify-center transition-all duration-300 select-none`}>
+          SALIR
+        </button>
 
-            {/* Esquinas decorativas */}
-            <div className="absolute top-3 left-3 w-8 h-8 border-l-4 border-t-4 border-black rounded-tl-lg"></div>
-            <div className="absolute top-3 right-3 w-8 h-8 border-r-4 border-t-4 border-black rounded-tr-lg"></div>
-            <div className="absolute bottom-3 left-3 w-8 h-8 border-l-4 border-b-4 border-black rounded-bl-lg"></div>
-            <div className="absolute bottom-3 right-3 w-8 h-8 border-r-4 border-b-4 border-black rounded-br-lg"></div>
+        <div className="flex gap-2">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className={`w-8 h-8 rounded-full border-4 border-black ${i < lives ? 'bg-[#FF6B6B]' : 'bg-gray-300'}`}></div>
+          ))}
+        </div>
+      </div>
 
-            {/* Barra del título */}
-            <div className="w-full bg-[#39d3f7] text-white text-center text-xl font-extrabold py-3 border-b-4 border-black rounded-t-2xl absolute top-0 left-0 right-0">
-              Nivel {level}
-            </div>
+      {/* Área de Juego */}
+      <div className="w-full max-w-md relative z-10">
 
-            {/* Pregunta */}
-            <p className="text-black text-lg font-semibold text-center px-4 mt-12">
-              {questions[currentCardIndex].text}
-            </p>
-          </div>
+        {/* Nivel */}
+        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[#4D96FF] px-6 py-2 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-20">
+          <span className="font-black text-xl tracking-tight text-white">NIVEL {level}</span>
         </div>
 
-        {/* Botones Falso / Cierto con mismo estilo */}
-        <div className="flex gap-4 w-full max-w-[500px]">
-          {/* Botón FALSO */}
+        {/* Carta */}
+        <div id="game-card" className="bg-white rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-6 min-h-[450px] flex flex-col items-center justify-between relative">
+
+          {/* Icono Python */}
+          <div className="w-full flex-1 flex items-center justify-center p-4 border-b-4 border-black border-dashed mb-4">
+            <img src={pythonLogo} alt="Python" className="w-32 h-32" />
+          </div>
+
+          {/* Pregunta */}
+          <div className="w-full text-center mb-6">
+            <p className="text-2xl font-black leading-tight">{questions[currentCardIndex].text}</p>
+          </div>
+
+          {/* Feedback */}
+          {showModal && (
+            <div className={`absolute inset-0 rounded-2xl flex items-center justify-center z-30 ${isCorrect ? 'bg-[#6BCB77]/90' : 'bg-[#FF6B6B]/90'}`}>
+              <span className="text-8xl font-black text-white drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                {isCorrect ? 'SI!' : 'NO!'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Botones */}
+        <div className="flex gap-4 mt-8">
           <button
             onClick={() => handleAnswer(false)}
             disabled={showModal}
-            className="flex-1 bg-[#ff4d6d] hover:bg-[#e63956] active:bg-[#cc2542] disabled:opacity-50 disabled:cursor-not-allowed text-white py-6 rounded-2xl border-4 border-black font-bold text-2xl shadow-[0_6px_0_#000] hover:shadow-[0_4px_0_#000] hover:translate-y-[2px] active:shadow-[0_2px_0_#000] active:translate-y-[4px] transition-all"
+            className="flex-1 bg-[#FF6B6B] text-white py-4 rounded-2xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none transition-all font-black text-2xl tracking-wider"
           >
             FALSO
           </button>
 
-          {/* Botón CIERTO */}
           <button
             onClick={() => handleAnswer(true)}
             disabled={showModal}
-            className="flex-1 bg-[#4ecdc4] hover:bg-[#3db9b0] active:bg-[#2ca59c] disabled:opacity-50 disabled:cursor-not-allowed text-white py-6 rounded-2xl border-4 border-black font-bold text-2xl shadow-[0_6px_0_#000] hover:shadow-[0_4px_0_#000] hover:translate-y-[2px] active:shadow-[0_2px_0_#000] active:translate-y-[4px] transition-all"
+            className="flex-1 bg-[#6BCB77] text-white py-4 rounded-2xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none transition-all font-black text-2xl tracking-wider"
           >
             CIERTO
           </button>
         </div>
+
+        {/* Progreso */}
+        <div className="mt-6 text-center">
+          <span className="font-bold text-black text-lg drop-shadow-[1px_1px_0px_rgba(255,255,255,1)]">
+            PREGUNTA {currentCardIndex + 1} / {questions.length}
+          </span>
+        </div>
+
       </div>
     </div>
   );

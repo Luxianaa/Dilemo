@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { gitLevels } from "../data/gitLevels";
+import { useAuth } from "../context/AuthContext";
+import { updateUserProgress } from "../services/api";
 
 function shuffleArray(array) {
   return array
@@ -12,6 +14,7 @@ function shuffleArray(array) {
 
 export default function GameGit() {
   const navigate = useNavigate();
+  const { user, token, addCoins } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
@@ -59,10 +62,26 @@ export default function GameGit() {
     }, 1000);
   };
 
-  const nextCard = (direction) => {
+  const nextCard = async (direction) => {
     if (currentCardIndex >= questions.length - 1) {
       const currentLevel = parseInt(localStorage.getItem("gitLevel") || "1");
-      localStorage.setItem("gitLevel", currentLevel + 1);
+      const nextLevel = currentLevel + 1;
+
+      localStorage.setItem("gitLevel", nextLevel);
+
+      // Guardar progreso y dar monedas si está autenticado
+      if (user && token) {
+        try {
+          await addCoins(50);
+          await updateUserProgress(token, 'git', {
+            current_level: nextLevel,
+            lives: lives
+          });
+        } catch (error) {
+          console.error("Error saving progress:", error);
+        }
+      }
+
       navigate("/git");
       return;
     }

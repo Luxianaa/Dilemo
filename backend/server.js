@@ -28,10 +28,11 @@ app.use('/api/questions', questionsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/users', require('./routes/users'));
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'API Dilemo Trivia funcionando correctamente',
     endpoints: {
       categories: '/api/categories',

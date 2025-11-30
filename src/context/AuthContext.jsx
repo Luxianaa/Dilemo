@@ -23,7 +23,10 @@ export const AuthProvider = ({ children }) => {
                     setUser({
                         id: decoded.id,
                         username: decoded.username,
-                        email: decoded.email
+                        email: decoded.email,
+                        display_name: decoded.display_name,
+                        coins: decoded.coins || 0,
+                        total_score: decoded.total_score || 0
                     });
                 } else {
                     // Token expirado
@@ -125,6 +128,28 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const addCoins = async (amount) => {
+        if (!token || !user) return;
+
+        try {
+            const response = await fetch(`${API_URL}/api/users/coins`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ amount })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUser(prev => ({ ...prev, coins: data.coins }));
+            }
+        } catch (error) {
+            console.error('Error adding coins:', error);
+        }
+    };
+
     const value = {
         user,
         token,
@@ -132,7 +157,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
-        logout
+        logout,
+        addCoins
     };
 
     return (

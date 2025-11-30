@@ -30,7 +30,7 @@ export default function HeroSection() {
       <div className="flex flex-col items-center gap-8 relative z-10 mt-16">
 
         {/* Título Principal (Opcional, si no está en el carrusel) */}
-        <div className="bg-white px-8 py-3 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] mb-4">
+        <div className="bg-white px-8 py-3 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] mb-4 gap-2">
           <h1 className="text-4xl font-black text-black tracking-tighter">DILEMO</h1>
         </div>
 

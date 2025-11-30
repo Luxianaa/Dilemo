@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { logoQuizLevels } from "../data/logoQuizLevels";
+import energyFull from "../assets/full-energy.svg";
+import energyEmpty from "../assets/energy_empty.svg";
 
 function shuffleArray(array) {
   return array
@@ -108,7 +110,12 @@ export default function GameQuiz() {
 
         <div className="flex gap-2">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className={`w-8 h-8 rounded-full border-4 border-black ${i < lives ? 'bg-[#FF6B6B]' : 'bg-gray-300'}`}></div>
+            <img
+              key={i}
+              src={i < lives ? energyFull : energyEmpty}
+              alt={i < lives ? "Vida llena" : "Vida vacía"}
+              className="w-10 h-10"
+            />
           ))}
         </div>
       </div>

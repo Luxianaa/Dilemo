@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import leaderboard from "../assets/leaderboard.svg";
+import coin from "../assets/coins.svg";
 
 export default function Header() {
     const navigate = useNavigate();
@@ -28,11 +30,24 @@ export default function Header() {
                     </div>
                 </button>
 
+                {/* Botón de Leaderboard */}
+                <button
+                    onClick={() => navigate("/leaderboard")}
+                    className="relative group"
+                >
+                    <div className="w-14 h-14 rounded-full bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+                        <div className="w-full h-full rounded-full flex items-center justify-center">
+                            <img src={leaderboard} alt="Leaderboard" className="w-10 h-10 text-black" />
+                        </div>
+                    </div>
+                </button>
+
+
                 {/* Monedas */}
                 <div className="relative">
                     <div className="bg-[#FFD93D] px-6 py-2 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <div className="flex items-center gap-2">
-                            <span className="text-black font-black text-xl">$</span>
+                            <img src={coin} alt="Coins" className="w-10 h-10 text-black" />
                             <span className="text-2xl font-black text-black tracking-tight">
                                 {coins}
                             </span>

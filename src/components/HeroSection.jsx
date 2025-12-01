@@ -5,6 +5,7 @@ import gsap from "gsap";
 
 // IMPORTA IMÁGENES
 import hand from "../assets/hand.png";
+import face from "../assets/face.svg";
 
 export default function HeroSection() {
   const handRef = useRef(null);
@@ -31,7 +32,8 @@ export default function HeroSection() {
 
         {/* Título Principal (Opcional, si no está en el carrusel) */}
         <div className="bg-white px-8 py-3 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] mb-4 gap-2">
-          <h1 className="text-4xl font-black text-black tracking-tighter">DILEMO</h1>
+          {/* <h1 className="text-4xl font-black text-black tracking-tighter">DILEMO</h1> */}
+          <img src={face} alt="Face" className="w-10 h-10 text-black" />
         </div>
 
         <CardCarousel />

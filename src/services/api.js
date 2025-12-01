@@ -173,3 +173,41 @@ export const updateUserProgress = async (token, categoryCode, progressData) => {
     throw error;
   }
 };
+
+// ============================================
+// STREAK (RACHAS DIARIAS)
+// ============================================
+
+// Actualizar racha diaria (requiere auth)
+export const updateStreak = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/streak/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) throw new Error('Error al actualizar racha');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating streak:', error);
+    throw error;
+  }
+};
+
+// Obtener información de racha (requiere auth)
+export const fetchStreak = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/streak`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) throw new Error('Error al cargar racha');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching streak:', error);
+    throw error;
+  }
+};

@@ -18,7 +18,7 @@ function shuffleArray(array) {
 
 export default function GameQuiz() {
   const navigate = useNavigate();
-  const { user, token, addCoins } = useAuth();
+  const { user, token, addCoins, updateStreakDaily } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
@@ -29,6 +29,13 @@ export default function GameQuiz() {
   const timerRef = useRef(null);
 
   const level = parseInt(localStorage.getItem("logoQuizLevel") || "1");
+
+  // Actualizar racha diaria al entrar al juego
+  useEffect(() => {
+    if (user && token && updateStreakDaily) {
+      updateStreakDaily();
+    }
+  }, [user, token]);
 
   useEffect(() => {
     const currentQuestions =
@@ -190,8 +197,8 @@ export default function GameQuiz() {
           </div>
 
           <div className={`w-12 h-12 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-xl ${timeLeft <= 5 ? 'bg-[#FF6B6B] text-white animate-pulse' :
-              timeLeft <= 10 ? 'bg-[#FFD93D] text-black' :
-                'bg-[#6BCB77] text-white'
+            timeLeft <= 10 ? 'bg-[#FFD93D] text-black' :
+              'bg-[#6BCB77] text-white'
             }`}>
             {timeLeft}
           </div>

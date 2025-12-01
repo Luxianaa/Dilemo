@@ -41,7 +41,10 @@ export const AuthProvider = ({ children }) => {
                                 setUser(prev => ({
                                     ...prev,
                                     coins: data.user.coins || 0,
-                                    total_score: data.user.total_score || 0
+                                    total_score: data.user.total_score || 0,
+                                    current_streak: data.user.current_streak || 0,
+                                    longest_streak: data.user.longest_streak || 0,
+                                    last_played_date: data.user.last_played_date
                                 }));
                             }
                         })
@@ -92,7 +95,7 @@ export const AuthProvider = ({ children }) => {
             if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
                 return {
                     success: false,
-                    error: 'No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:3001'
+                    error: 'No se puede conectar al servidor. Verifica tu conexión a internet y que el backend esté activo.'
                 };
             }
 
@@ -132,7 +135,7 @@ export const AuthProvider = ({ children }) => {
             if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
                 return {
                     success: false,
-                    error: 'No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:3001'
+                    error: 'No se puede conectar al servidor. Verifica tu conexión a internet y que el backend esté activo.'
                 };
             }
 
@@ -168,6 +171,33 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateStreakDaily = async () => {
+        if (!token || !user) return;
+
+        try {
+            const response = await fetch(`${API_URL}/api/streak/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUser(prev => ({
+                    ...prev,
+                    current_streak: data.current_streak,
+                    longest_streak: data.longest_streak,
+                    last_played_date: data.last_played_date
+                }));
+                return data;
+            }
+        } catch (error) {
+            console.error('Error updating streak:', error);
+        }
+    };
+
     const value = {
         user,
         token,
@@ -176,7 +206,8 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        addCoins
+        addCoins,
+        updateStreakDaily
     };
 
     return (

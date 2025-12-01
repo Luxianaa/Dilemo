@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 import { fetchUserProgress } from "../services/api";
+import StreakDisplay from "../components/StreakDisplay";
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -131,6 +132,9 @@ export default function Profile() {
                         </div>
                     </div>
                 </div>
+
+                {/* Racha Diaria */}
+                <StreakDisplay />
 
                 {/* Progreso por Categoría */}
                 <div className="bg-white rounded-3xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">

@@ -143,7 +143,7 @@ router.post('/login',
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const [users] = await db.query(
-      'SELECT id, username, email, display_name, coins, total_score, created_at FROM users WHERE id = ?',
+      'SELECT id, username, email, display_name, coins, total_score, current_streak, longest_streak, last_played_date, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
 

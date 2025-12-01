@@ -19,7 +19,7 @@ function shuffleArray(array) {
 
 export default function GamePlay() {
   const navigate = useNavigate();
-  const { user, token, addCoins } = useAuth();
+  const { user, token, addCoins, updateStreakDaily } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lives, setLives] = useState(3);
@@ -30,6 +30,13 @@ export default function GamePlay() {
   const timerRef = useRef(null);
 
   const level = parseInt(localStorage.getItem("pythonLevel") || "1");
+
+  // Actualizar racha diaria al entrar al juego
+  useEffect(() => {
+    if (user && token && updateStreakDaily) {
+      updateStreakDaily();
+    }
+  }, [user, token]);
 
   useEffect(() => {
     const currentQuestions =

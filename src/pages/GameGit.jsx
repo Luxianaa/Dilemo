@@ -131,11 +131,22 @@ export default function GameGit() {
       // Guardar progreso y dar monedas si está autenticado
       if (user && token) {
         try {
+          // Calcular puntos basados en el desempeño (FÓRMULA REDUCIDA)
+          // Fórmula: 50 puntos por cada vida restante + 20 por nivel
+          const basePoints = lives * 50; // 50 puntos por vida
+          const levelBonus = currentLevel * 20; // 20 puntos por nivel
+          const scoreToAdd = basePoints + levelBonus;
+
+          // Dar monedas (50 por completar el nivel)
           await addCoins(50);
+
+          // Actualizar progreso incluyendo el puntaje incremental
           await updateUserProgress(token, 'git', {
             current_level: nextLevel,
-            lives: lives
+            lives: lives,
+            score_to_add: scoreToAdd // Agregar puntos (no reemplazar)
           });
+
           await refreshUser();
         } catch (error) {
           console.error("Error saving progress:", error);

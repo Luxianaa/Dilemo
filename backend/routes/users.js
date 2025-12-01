@@ -3,11 +3,13 @@ const router = express.Router();
 const db = require('../config/database');
 const authMiddleware = require('../middleware/auth');
 
+
 // POST /api/users/coins - Agregar monedas al usuario
 router.post('/coins', authMiddleware, async (req, res) => {
   try {
     const { amount } = req.body;
     const userId = req.user.id;
+
 
     if (!amount || amount < 0) {
       return res.status(400).json({ error: 'Cantidad inválida' });
@@ -24,6 +26,12 @@ router.post('/coins', authMiddleware, async (req, res) => {
       'SELECT coins FROM users WHERE id = ?',
       [userId]
     );
+
+    console.log('Query result:', rows);
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
 
     res.json({
       message: 'Monedas agregadas exitosamente',

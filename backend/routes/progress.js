@@ -39,7 +39,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // PUT /api/progress/:categoryCode - Actualizar progreso de una categoría
 router.put('/:categoryCode', authMiddleware, async (req, res) => {
   const { categoryCode } = req.params;
-  const { current_level, total_score, lives } = req.body;
+  const { current_level, total_score, lives, score_to_add } = req.body;
 
   try {
     // Obtener ID de categoría
@@ -51,15 +51,38 @@ router.put('/:categoryCode', authMiddleware, async (req, res) => {
 
     const categoryId = categories[0].id;
 
-    // Actualizar progreso
-    await db.query(`
-      UPDATE user_progress 
-      SET current_level = COALESCE(?, current_level),
-          total_score = COALESCE(?, total_score),
-          lives = COALESCE(?, lives),
-          last_played = NOW()
-      WHERE user_id = ? AND category_id = ?
-    `, [current_level, total_score, lives, req.user.id, categoryId]);
+    console.log('📊 Update Progress Request:', {
+      user: req.user.id,
+      category: categoryCode,
+      current_level,
+      lives,
+      score_to_add,
+      total_score
+    });
+
+    // Si se proporciona score_to_add, sumar puntos en lugar de reemplazar
+    if (score_to_add !== undefined && score_to_add !== null) {
+      console.log(`✅ Adding ${score_to_add} points to user ${req.user.id} in category ${categoryCode}`);
+      
+      await db.query(`
+        UPDATE user_progress 
+        SET current_level = COALESCE(?, current_level),
+            total_score = total_score + ?,
+            lives = COALESCE(?, lives),
+            last_played = NOW()
+        WHERE user_id = ? AND category_id = ?
+      `, [current_level, score_to_add, lives, req.user.id, categoryId]);
+    } else {
+      // Actualizar progreso normal
+      await db.query(`
+        UPDATE user_progress 
+        SET current_level = COALESCE(?, current_level),
+            total_score = COALESCE(?, total_score),
+            lives = COALESCE(?, lives),
+            last_played = NOW()
+        WHERE user_id = ? AND category_id = ?
+      `, [current_level, total_score, lives, req.user.id, categoryId]);
+    }
 
     // Actualizar total_score global del usuario sumando todos los scores de todas las categorías
     await db.query(`
@@ -67,6 +90,8 @@ router.put('/:categoryCode', authMiddleware, async (req, res) => {
       SET total_score = (SELECT COALESCE(SUM(total_score), 0) FROM user_progress WHERE user_id = ?)
       WHERE id = ?
     `, [req.user.id, req.user.id]);
+
+    console.log('✅ Progress updated successfully');
 
     res.json({ message: 'Progreso actualizado exitosamente' });
   } catch (error) {

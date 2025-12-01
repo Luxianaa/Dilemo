@@ -144,11 +144,20 @@ export default function GamePlay() {
       // Guardar progreso y dar monedas si está autenticado
       if (user && token) {
         try {
+          // Calcular puntos basados en el desempeño
+          // Fórmula: 50 puntos por cada vida restante + 20 por nivel
+          const basePoints = lives * 50;
+          const levelBonus = currentLevel * 20;
+          const scoreToAdd = basePoints + levelBonus;
+
           await addCoins(50);
+
           await updateUserProgress(token, 'python', {
             current_level: nextLevel,
-            lives: lives
+            lives: lives,
+            score_to_add: scoreToAdd // Agregar puntos incrementales
           });
+
           await refreshUser();
         } catch (error) {
           console.error("Error saving progress:", error);

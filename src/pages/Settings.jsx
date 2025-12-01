@@ -85,7 +85,7 @@ export default function Settings() {
                     onClick={() => navigate('/')}
                     className="bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold"
                 >
-                    ← VOLVER
+                    VOLVER
                 </button>
 
                 {/* Header */}
@@ -101,8 +101,8 @@ export default function Settings() {
                             key={section.id}
                             onClick={() => setActiveSection(section.id)}
                             className={`py-3 px-2 rounded-xl border-4 border-black font-black text-xs transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${activeSection === section.id
-                                    ? 'translate-y-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-white'
-                                    : 'text-black bg-white hover:translate-y-1'
+                                ? 'translate-y-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-white'
+                                : 'text-black bg-white hover:translate-y-1'
                                 }`}
                             style={activeSection === section.id ? { backgroundColor: section.color } : {}}
                         >

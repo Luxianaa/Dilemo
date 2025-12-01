@@ -42,7 +42,7 @@ export default function CardCarousel() {
       },
     });
 
-    const offset = direction === "next" ? 250 : -250;
+    const offset = direction === "next" ? 200 : -200;
 
     tl.to(centerRef.current, { x: -offset, scale: 0.85, duration: 0.35 }, 0)
       .to(leftRef.current, { x: -offset, duration: 0.35 }, 0)
@@ -70,7 +70,7 @@ export default function CardCarousel() {
 
       {/* Carrusel */}
       <div
-        className="relative flex items-center justify-between w-full h-[420px]"
+        className="relative flex items-center justify-between w-full h-[320px]"
         onTouchStart={onStart}
         onTouchMove={onMove}
         onTouchEnd={onEnd}
@@ -81,8 +81,8 @@ export default function CardCarousel() {
           className="scale-90 opacity-70 cursor-pointer transition"
           onClick={prevCard}
         >
-          <div className="bg-white rounded-3xl w-[220px] h-[300px] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
-            <img src={cards[(index - 1 + cards.length) % cards.length].img} className="w-20 opacity-60" />
+          <div className="bg-white rounded-2xl w-[160px] h-[220px] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+            <img src={cards[(index - 1 + cards.length) % cards.length].img} className="w-16 opacity-60" alt="" />
           </div>
         </div>
 
@@ -92,20 +92,20 @@ export default function CardCarousel() {
           className="z-20 cursor-pointer"
           onClick={() => navigate(`/${cards[index].title}`)}
         >
-          <div className="relative bg-white w-[280px] h-[380px] rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-between p-6 hover:translate-y-[-5px] transition-transform">
+          <div className="relative bg-white w-[200px] h-[280px] rounded-2xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-between p-4 hover:translate-y-[-4px] transition-transform">
 
             {/* Título */}
-            <div className={`w-full text-white text-center text-2xl font-black py-3 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]`} style={{ backgroundColor: cards[index].color }}>
+            <div className={`w-full text-white text-center text-lg font-black py-2 border-4 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`} style={{ backgroundColor: cards[index].color }}>
               {cards[index].title.toUpperCase()}
             </div>
 
             {/* Logo */}
             <div className="flex-1 flex items-center justify-center">
-              <img src={cards[index].img} className="w-32 drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]" />
+              <img src={cards[index].img} className="w-20 drop-shadow-[3px_3px_0px_rgba(0,0,0,0.2)]" alt="" />
             </div>
 
             {/* Botón Jugar */}
-            <div className="bg-black text-white px-6 py-2 rounded-full font-bold text-lg">
+            <div className="bg-black text-white px-8 py-2 rounded-full font-bold text-sm">
               JUGAR
             </div>
 
@@ -119,8 +119,8 @@ export default function CardCarousel() {
           className="scale-90 opacity-70 cursor-pointer transition"
           onClick={nextCard}
         >
-          <div className="bg-white rounded-3xl w-[220px] h-[300px] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
-            <img src={cards[(index + 1) % cards.length].img} className="w-20 opacity-60" />
+          <div className="bg-white rounded-2xl w-[160px] h-[220px] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+            <img src={cards[(index + 1) % cards.length].img} className="w-16 opacity-60" alt="" />
           </div>
         </div>
       </div>

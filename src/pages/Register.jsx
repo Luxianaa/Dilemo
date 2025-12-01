@@ -70,7 +70,7 @@ export default function Register() {
 
                     {/* Título */}
                     <div className="text-center mb-6">
-                        <h1 className="text-5xl font-black text-black mb-2">DILEMO</h1>
+                        <h1 className="text-5xl font-black text-black mb-2">CODUVA</h1>
                         <p className="text-gray-600 font-bold">Crear Cuenta</p>
                     </div>
 

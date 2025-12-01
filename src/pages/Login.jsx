@@ -55,7 +55,7 @@ export default function Login() {
 
                     {/* Título */}
                     <div className="text-center mb-8">
-                        <h1 className="text-5xl font-black text-black mb-2">DILEMO</h1>
+                        <h1 className="text-5xl font-black text-black mb-2">CODUVA</h1>
                         <p className="text-gray-600 font-bold">Inicia Sesión</p>
                     </div>
 

@@ -19,7 +19,7 @@ export default function Header() {
                 {/* Botón de Perfil */}
                 <button
                     onClick={() => navigate("/profile")}
-                    className="relative group"
+                    className="relative group mt-10"
                 >
                     <div className="w-14 h-14 rounded-full bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
                         <div className="w-full h-full rounded-full flex items-center justify-center">
@@ -58,7 +58,7 @@ export default function Header() {
                 {/* Botón de Configuración */}
                 <button
                     onClick={() => navigate("/settings")}
-                    className="relative group"
+                    className="relative group mt-10"
                 >
                     <div className="w-14 h-14 rounded-full bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
                         <div className="w-full h-full rounded-full flex items-center justify-center">

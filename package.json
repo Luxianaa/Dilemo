@@ -11,6 +11,9 @@
     "start": "concurrently \"npm run dev\" \"npm run server\""
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
     "gsap": "^3.12.7",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",

@@ -79,10 +79,12 @@ export default function Profile() {
                     {/* Avatar y Nombre */}
                     <div className="flex items-center gap-4 mb-6">
                         {/* Avatar */}
-                        <div className="w-20 h-20 bg-[#4D96FF] rounded-2xl border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <span className="text-white text-3xl font-black">
-                                {user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || '?'}
-                            </span>
+                        <div className="w-20 h-20 bg-[#4D96FF] rounded-2xl border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                            <img
+                                src={new URL('../assets/userlogodil.png', import.meta.url).href}
+                                alt="User Avatar"
+                                className="w-16 h-16 object-contain animate-float"
+                            />
                         </div>
 
                         {/* Info Usuario */}

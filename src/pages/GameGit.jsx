@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { gitLevels } from "../data/gitLevels";
@@ -6,6 +6,8 @@ import energyFull from "../assets/full-energy.svg";
 import energyEmpty from "../assets/energy_empty.svg";
 import { useAuth } from "../context/AuthContext";
 import { updateUserProgress } from "../services/api";
+
+const TIME_LIMIT = 15; // Segundos por pregunta
 
 function shuffleArray(array) {
   return array
@@ -22,6 +24,8 @@ export default function GameGit() {
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+  const timerRef = useRef(null);
 
   const level = parseInt(localStorage.getItem("gitLevel") || "1");
 
@@ -41,9 +45,55 @@ export default function GameGit() {
     }
   }, [currentCardIndex, questions]);
 
+  // Timer effect
+  useEffect(() => {
+    if (questions.length === 0 || showModal) return;
+
+    setTimeLeft(TIME_LIMIT);
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          handleTimeout();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [currentCardIndex, questions, showModal]);
+
+  const handleTimeout = () => {
+    setIsCorrect(false);
+    setShowModal(true);
+
+    const newLives = lives - 1;
+    setLives(newLives);
+
+    if (newLives <= 0) {
+      setTimeout(() => navigate("/git"), 1000);
+      return;
+    }
+
+    setTimeout(() => {
+      setShowModal(false);
+      nextCard("timeout");
+    }, 1500);
+  };
+
   if (questions.length === 0) return null;
 
   const handleAnswer = (userAnswer) => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
     const correct = questions[currentCardIndex].answer === userAnswer;
     setIsCorrect(correct);
     setShowModal(true);
@@ -115,15 +165,24 @@ export default function GameGit() {
           SALIR
         </button>
 
-        <div className="flex gap-2">
-          {[...Array(3)].map((_, i) => (
-            <img
-              key={i}
-              src={i < lives ? energyFull : energyEmpty}
-              alt={i < lives ? "Vida llena" : "Vida vacía"}
-              className="w-10 h-10"
-            />
-          ))}
+        <div className="flex gap-3 items-center">
+          <div className="flex gap-2">
+            {[...Array(3)].map((_, i) => (
+              <img
+                key={i}
+                src={i < lives ? energyFull : energyEmpty}
+                alt={i < lives ? "Vida llena" : "Vida vacía"}
+                className="w-10 h-10"
+              />
+            ))}
+          </div>
+
+          <div className={`w-12 h-12 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-xl ${timeLeft <= 5 ? 'bg-[#FF6B6B] text-white animate-pulse' :
+              timeLeft <= 10 ? 'bg-[#FFD93D] text-black' :
+                'bg-[#6BCB77] text-white'
+            }`}>
+            {timeLeft}
+          </div>
         </div>
       </div>
 

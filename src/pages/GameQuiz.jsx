@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { logoQuizLevels } from "../data/logoQuizLevels";
@@ -6,6 +6,8 @@ import energyFull from "../assets/full-energy.svg";
 import energyEmpty from "../assets/energy_empty.svg";
 import { useAuth } from "../context/AuthContext";
 import { updateUserProgress } from "../services/api";
+
+const TIME_LIMIT = 15; // Segundos por pregunta
 
 function shuffleArray(array) {
   return array
@@ -23,6 +25,8 @@ export default function GameQuiz() {
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+  const timerRef = useRef(null);
 
   const level = parseInt(localStorage.getItem("logoQuizLevel") || "1");
 
@@ -44,6 +48,48 @@ export default function GameQuiz() {
     }
   }, [currentCardIndex, questions]);
 
+  // Timer effect
+  useEffect(() => {
+    if (questions.length === 0 || showModal) return;
+
+    setTimeLeft(TIME_LIMIT);
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          handleTimeout();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [currentCardIndex, questions, showModal]);
+
+  const handleTimeout = () => {
+    setIsCorrect(false);
+    setShowModal(true);
+
+    const newLives = lives - 1;
+    setLives(newLives);
+
+    if (newLives <= 0) {
+      setTimeout(() => navigate("/logoquiz"), 1000);
+      return;
+    }
+
+    setTimeout(() => {
+      setShowModal(false);
+      nextCard("timeout");
+    }, 1500);
+  };
+
   if (isLoading || questions.length === 0) {
     return (
       <div className="h-screen w-full bg-[#4D96FF] flex items-center justify-center border-8 border-black">
@@ -55,6 +101,10 @@ export default function GameQuiz() {
   const totalCards = questions.length;
 
   const handleAnswer = (userAnswer) => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
     const correct = questions[currentCardIndex].answer === userAnswer;
     setIsCorrect(correct);
     setShowModal(true);
@@ -127,15 +177,24 @@ export default function GameQuiz() {
           SALIR
         </button>
 
-        <div className="flex gap-2">
-          {[...Array(3)].map((_, i) => (
-            <img
-              key={i}
-              src={i < lives ? energyFull : energyEmpty}
-              alt={i < lives ? "Vida llena" : "Vida vacía"}
-              className="w-10 h-10"
-            />
-          ))}
+        <div className="flex gap-3 items-center">
+          <div className="flex gap-2">
+            {[...Array(3)].map((_, i) => (
+              <img
+                key={i}
+                src={i < lives ? energyFull : energyEmpty}
+                alt={i < lives ? "Vida llena" : "Vida vacía"}
+                className="w-10 h-10"
+              />
+            ))}
+          </div>
+
+          <div className={`w-12 h-12 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-xl ${timeLeft <= 5 ? 'bg-[#FF6B6B] text-white animate-pulse' :
+              timeLeft <= 10 ? 'bg-[#FFD93D] text-black' :
+                'bg-[#6BCB77] text-white'
+            }`}>
+            {timeLeft}
+          </div>
         </div>
       </div>
 

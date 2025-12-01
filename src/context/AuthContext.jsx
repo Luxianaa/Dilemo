@@ -41,7 +41,11 @@ export const AuthProvider = ({ children }) => {
                                 setUser(prev => ({
                                     ...prev,
                                     coins: data.user.coins || 0,
-                                    total_score: data.user.total_score || 0
+                                    total_score: data.user.total_score || 0,
+                                    current_streak: data.user.current_streak || 0,
+                                    longest_streak: data.user.longest_streak || 0,
+                                    last_played_date: data.user.last_played_date,
+                                    play_history: data.user.play_history || []
                                 }));
                             }
                         })
@@ -92,7 +96,7 @@ export const AuthProvider = ({ children }) => {
             if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
                 return {
                     success: false,
-                    error: 'No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:3001'
+                    error: 'No se puede conectar al servidor. Verifica tu conexión a internet y que el backend esté activo.'
                 };
             }
 
@@ -132,7 +136,7 @@ export const AuthProvider = ({ children }) => {
             if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
                 return {
                     success: false,
-                    error: 'No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:3001'
+                    error: 'No se puede conectar al servidor. Verifica tu conexión a internet y que el backend esté activo.'
                 };
             }
 
@@ -162,9 +166,84 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const data = await response.json();
                 setUser(prev => ({ ...prev, coins: data.coins }));
+                
+                // Actualizar también el total_score
+                const userResponse = await fetch(`${API_URL}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    if (userData.user) {
+                        setUser(prev => ({
+                            ...prev,
+                            coins: userData.user.coins || 0,
+                            total_score: userData.user.total_score || 0
+                        }));
+                    }
+                }
             }
         } catch (error) {
             console.error('Error adding coins:', error);
+        }
+    };
+
+    const updateStreakDaily = async () => {
+        if (!token || !user) return;
+
+        try {
+            const response = await fetch(`${API_URL}/api/streak/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUser(prev => ({
+                    ...prev,
+                    current_streak: data.current_streak,
+                    longest_streak: data.longest_streak,
+                    last_played_date: data.last_played_date,
+                    play_history: data.play_history || []
+                }));
+                return data;
+            }
+        } catch (error) {
+            console.error('Error updating streak:', error);
+        }
+    };
+
+    const refreshUser = async () => {
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${API_URL}/api/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.user) {
+                    setUser(prev => ({
+                        ...prev,
+                        coins: data.user.coins || 0,
+                        total_score: data.user.total_score || 0,
+                        current_streak: data.user.current_streak || 0,
+                        longest_streak: data.user.longest_streak || 0,
+                        last_played_date: data.user.last_played_date,
+                        play_history: data.user.play_history || []
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing user:', error);
         }
     };
 
@@ -176,7 +255,9 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        addCoins
+        addCoins,
+        updateStreakDaily,
+        refreshUser
     };
 
     return (

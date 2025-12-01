@@ -20,6 +20,8 @@ const questionsRoutes = require('./routes/questions');
 const authRoutes = require('./routes/auth');
 const progressRoutes = require('./routes/progress');
 const leaderboardRoutes = require('./routes/leaderboard');
+const streakRoutes = require('./routes/streak');
+const streakTestRoutes = require('./routes/streak-test');
 
 // Usar rutas
 app.use('/api/categories', categoriesRoutes);
@@ -29,6 +31,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/users', require('./routes/users'));
+app.use('/api/streak', streakRoutes);
+app.use('/api/streak', streakTestRoutes); // Endpoints de prueba
 
 // Ruta de prueba
 app.get('/', (req, res) => {

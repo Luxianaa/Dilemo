@@ -7,6 +7,7 @@ import gsap from "gsap";
 import hand from "../assets/hand.png";
 import escherBg from "../assets/dilemo-escher.6d1f4ed2.svg";
 
+
 export default function HeroSection() {
   const handRef = useRef(null);
 

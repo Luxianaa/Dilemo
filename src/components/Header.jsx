@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import leaderboard from "../assets/leaderboard.svg";
+import profile from "../assets/profile.svg";
 import coin from "../assets/coins.svg";
+import StreakDisplay from "./StreakDisplay";
 
 export default function Header() {
     const navigate = useNavigate();
@@ -23,9 +25,7 @@ export default function Header() {
                 >
                     <div className="w-14 h-14 rounded-full bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
                         <div className="w-full h-full rounded-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                            </svg>
+                            <img src={profile} alt="Profile" className="w-10 h-10 text-black" />
                         </div>
                     </div>
                 </button>
@@ -42,16 +42,13 @@ export default function Header() {
                     </div>
                 </button>
 
-
                 {/* Monedas */}
-                <div className="relative">
-                    <div className="bg-[#FFD93D] px-6 py-2 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <div className="flex items-center gap-2">
-                            <img src={coin} alt="Coins" className="w-10 h-10 text-black" />
-                            <span className="text-2xl font-black text-black tracking-tight">
-                                {coins}
-                            </span>
-                        </div>
+                <div className="bg-[#FFD93D] px-6 py-2 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center gap-2">
+                        <img src={coin} alt="Coins" className="w-10 h-10 text-black" />
+                        <span className="text-2xl font-black text-black tracking-tight">
+                            {coins}
+                        </span>
                     </div>
                 </div>
 

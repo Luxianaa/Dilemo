@@ -41,7 +41,7 @@ export default function HeroSection() {
 
         {/* Título Principal */}
         <div className="bg-white px-8 py-3 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] mb-2 -mt-20">
-          <h1 className="text-4xl font-black text-black tracking-tighter">CODUVA</h1>
+          <h1 className="text-4xl font-black text-black tracking-tighter">DILEMO</h1>
         </div>
 
         <CardCarousel />

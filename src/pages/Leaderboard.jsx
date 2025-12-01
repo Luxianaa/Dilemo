@@ -54,10 +54,10 @@ export default function Leaderboard() {
 
                 {/* Botón Volver */}
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/home')}
                     className="bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold"
                 >
-                    ← VOLVER
+                    VOLVER
                 </button>
 
                 {/* Header con Trofeo */}
@@ -74,8 +74,8 @@ export default function Leaderboard() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`py-3 px-4 rounded-xl border-4 border-black font-black text-sm transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${activeTab === tab.id
-                                    ? 'translate-y-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-white'
-                                    : 'text-black bg-white hover:translate-y-1'
+                                ? 'translate-y-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-white'
+                                : 'text-black bg-white hover:translate-y-1'
                                 }`}
                             style={activeTab === tab.id ? { backgroundColor: tab.color } : {}}
                         >
@@ -140,11 +140,11 @@ export default function Leaderboard() {
                 </div>
 
                 {/* Footer */}
-                {!loading && rankings.length > 0 && (
+                {/* {!loading && rankings.length > 0 && (
                     <div className="text-center text-white font-bold text-sm pb-4">
                         Sigue jugando para subir de posición
                     </div>
-                )}
+                )} */}
 
             </div>
         </div>

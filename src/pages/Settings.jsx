@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useMusic } from "../context/MusicContext";
 import { useState } from "react";
 
 export default function Settings() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const { isPlaying, volume, toggleMusic, changeVolume } = useMusic();
     const [activeSection, setActiveSection] = useState('profile');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -67,6 +69,7 @@ export default function Settings() {
 
     const sections = [
         { id: 'profile', label: 'PERFIL', color: '#4D96FF' },
+        { id: 'audio', label: 'AUDIO', color: '#6BCB77' },
         { id: 'password', label: 'CONTRASEÑA', color: '#FFD93D' },
         { id: 'account', label: 'CUENTA', color: '#FF6B6B' }
     ];
@@ -82,7 +85,7 @@ export default function Settings() {
 
                 {/* Botón Volver */}
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/home')}
                     className="bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold"
                 >
                     VOLVER
@@ -95,7 +98,7 @@ export default function Settings() {
                 </div>
 
                 {/* Tabs de Secciones */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                     {sections.map(section => (
                         <button
                             key={section.id}
@@ -181,6 +184,51 @@ export default function Settings() {
                         </div>
                     )}
 
+                    {/* SECCIÓN: AUDIO */}
+                    {activeSection === 'audio' && (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-black text-black mb-4">MÚSICA DE FONDO</h2>
+
+                            {/* Toggle de música */}
+                            <div className="bg-gray-50 rounded-2xl border-3 border-black p-6">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-black font-black">MÚSICA</span>
+                                    <button
+                                        onClick={toggleMusic}
+                                        className={`relative w-16 h-8 rounded-full border-4 border-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${isPlaying ? 'bg-[#6BCB77]' : 'bg-gray-300'
+                                            }`}
+                                    >
+                                        <div className={`absolute top-0 left-0 w-8 h-full bg-white border-4 border-black rounded-full transition-transform ${isPlaying ? 'translate-x-8' : 'translate-x-0'
+                                            }`}></div>
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-600 font-bold">
+                                    {isPlaying ? 'Reproduciendo' : 'Pausado'}
+                                </p>
+                            </div>
+
+                            {/* Control de volumen */}
+                            <div className="bg-gray-50 rounded-2xl border-3 border-black p-6">
+                                <div className="mb-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-black font-black">VOLUMEN</span>
+                                        <span className="text-black font-bold">{Math.round(volume * 100)}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        value={volume}
+                                        onChange={(e) => changeVolume(parseFloat(e.target.value))}
+                                        className="w-full h-4 bg-gray-300 rounded-full border-4 border-black appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-[#6BCB77] [&::-webkit-slider-thumb]:border-4 [&::-webkit-slider-thumb]:border-black [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+                                    />
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
                     {/* SECCIÓN: CONTRASEÑA */}
                     {activeSection === 'password' && (
                         <div>
@@ -248,17 +296,7 @@ export default function Settings() {
                         <div className="space-y-4">
                             <h2 className="text-2xl font-black text-black mb-4">GESTIÓN DE CUENTA</h2>
 
-                            {/* Info de cuenta */}
-                            <div className="bg-gray-50 rounded-2xl border-3 border-black p-4">
-                                <p className="text-sm text-gray-600 font-bold mb-2">FECHA DE REGISTRO</p>
-                                <p className="text-black font-black">
-                                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('es-ES', {
-                                        day: 'numeric',
-                                        month: 'long',
-                                        year: 'numeric'
-                                    }) : 'No disponible'}
-                                </p>
-                            </div>
+
 
                             <div className="bg-gray-50 rounded-2xl border-3 border-black p-4">
                                 <p className="text-sm text-gray-600 font-bold mb-2">PUNTOS TOTALES</p>
@@ -274,7 +312,7 @@ export default function Settings() {
                             </button>
 
                             {/* Zona de peligro */}
-                            <div className="mt-8 pt-6 border-t-4 border-black">
+                            {/* <div className="mt-8 pt-6 border-t-4 border-black">
                                 <h3 className="text-lg font-black text-black mb-3">ZONA DE PELIGRO</h3>
 
                                 {!showDeleteConfirm ? (
@@ -305,7 +343,7 @@ export default function Settings() {
                                         </div>
                                     </div>
                                 )}
-                            </div>
+                            </div> */}
                         </div>
                     )}
 

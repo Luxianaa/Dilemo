@@ -58,7 +58,7 @@ export default function Register() {
 
             {/* Botón Volver */}
             <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/home")}
                 className="absolute top-6 left-6 bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold z-50"
             >
                 VOLVER
@@ -70,7 +70,7 @@ export default function Register() {
 
                     {/* Título */}
                     <div className="text-center mb-6">
-                        <h1 className="text-5xl font-black text-black mb-2">CODUVA</h1>
+                        <h1 className="text-5xl font-black text-black mb-2">DILEMO</h1>
                         <p className="text-gray-600 font-bold">Crear Cuenta</p>
                     </div>
 

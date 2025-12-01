@@ -40,7 +40,7 @@ router.get('/', authMiddleware, async (req, res) => {
 router.put('/:categoryCode', authMiddleware, async (req, res) => {
   const { categoryCode } = req.params;
   const { current_level, total_score, lives, score_to_add } = req.body;
-
+  
   try {
     // Obtener ID de categoría
     const [categories] = await db.query('SELECT id FROM categories WHERE code = ?', [categoryCode]);

@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { MusicProvider } from "./context/MusicContext";
 
 // Importa tus pantallas
+import SplashScreen from "./pages/SplashScreen";
 import HeroSection from "./components/HeroSection";
 import PythonMenu from "./pages/pythonMenu";
 import GamePlay from "./pages/GamePlay";
@@ -18,33 +20,38 @@ import Settings from "./pages/Settings";
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Auth */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+      <MusicProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Splash Screen */}
+            <Route path="/" element={<SplashScreen />} />
 
-          {/* Profile & Leaderboard */}
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/settings" element={<Settings />} />
+            {/* Auth */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Pantalla principal */}
-          <Route path="/" element={<HeroSection />} />
+            {/* Profile & Leaderboard */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/settings" element={<Settings />} />
 
-          {/* Python */}
-          <Route path="/python" element={<PythonMenu />} />
-          <Route path="/game" element={<GamePlay />} />
+            {/* Pantalla principal */}
+            <Route path="/home" element={<HeroSection />} />
 
-          {/* Git */}
-          <Route path="/git" element={<GitMenu />} />
-          <Route path="/game-git" element={<GameGit />} />
+            {/* Python */}
+            <Route path="/python" element={<PythonMenu />} />
+            <Route path="/game" element={<GamePlay />} />
 
-          {/* Logo Quiz */}
-          <Route path="/logoquiz" element={<QuizMenu />} />
-          <Route path="/game-quiz" element={<GameQuiz />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Git */}
+            <Route path="/git" element={<GitMenu />} />
+            <Route path="/game-git" element={<GameGit />} />
+
+            {/* Logo Quiz */}
+            <Route path="/logoquiz" element={<QuizMenu />} />
+            <Route path="/game-quiz" element={<GameQuiz />} />
+          </Routes>
+        </BrowserRouter>
+      </MusicProvider>
     </AuthProvider>
   );
 }

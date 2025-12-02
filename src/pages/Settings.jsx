@@ -310,40 +310,6 @@ export default function Settings() {
                             >
                                 CERRAR SESIÓN
                             </button>
-
-                            {/* Zona de peligro */}
-                            {/* <div className="mt-8 pt-6 border-t-4 border-black">
-                                <h3 className="text-lg font-black text-black mb-3">ZONA DE PELIGRO</h3>
-
-                                {!showDeleteConfirm ? (
-                                    <button
-                                        onClick={() => setShowDeleteConfirm(true)}
-                                        className="w-full bg-[#FF6B6B] text-white py-4 rounded-2xl border-4 border-black font-black text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all"
-                                    >
-                                        ELIMINAR CUENTA
-                                    </button>
-                                ) : (
-                                    <div className="space-y-3">
-                                        <div className="bg-[#FF6B6B] text-white p-4 rounded-xl border-4 border-black font-bold text-center">
-                                            ¿Estás seguro? Esta acción no se puede deshacer
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <button
-                                                onClick={() => setShowDeleteConfirm(false)}
-                                                className="bg-white text-black py-3 rounded-xl border-4 border-black font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-                                            >
-                                                CANCELAR
-                                            </button>
-                                            <button
-                                                onClick={handleDeleteAccount}
-                                                className="bg-[#FF6B6B] text-white py-3 rounded-xl border-4 border-black font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-                                            >
-                                                ELIMINAR
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div> */}
                         </div>
                     )}
 

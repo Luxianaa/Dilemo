@@ -57,7 +57,7 @@ export const fetchQuestionsByLevelId = async (levelId) => {
     const response = await fetch(`${API_BASE_URL}/questions/level/${levelId}`);
     if (!response.ok) throw new Error('Error al cargar preguntas');
     const data = await response.json();
-    
+
     // Transformar datos para que coincidan con el formato esperado
     return data.map(q => ({
       ...q,
@@ -75,7 +75,7 @@ export const fetchQuestions = async (categoryCode, levelNumber) => {
     const response = await fetch(`${API_BASE_URL}/questions/${categoryCode}/${levelNumber}`);
     if (!response.ok) throw new Error('Error al cargar preguntas');
     const data = await response.json();
-    
+
     // Transformar datos para que coincidan con el formato esperado
     return data.map(q => ({
       ...q,
@@ -208,6 +208,55 @@ export const fetchStreak = async (token) => {
     return await response.json();
   } catch (error) {
     console.error('Error fetching streak:', error);
+    throw error;
+  }
+};
+
+// ============================================
+// ADMIN (CREACIÓN DE CONTENIDO)
+// ============================================
+
+export const createCategory = async (categoryData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(categoryData)
+    });
+    if (!response.ok) throw new Error('Error al crear categoría');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating category:', error);
+    throw error;
+  }
+};
+
+export const createLevel = async (levelData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/levels`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(levelData)
+    });
+    if (!response.ok) throw new Error('Error al crear nivel');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating level:', error);
+    throw error;
+  }
+};
+
+export const createQuestion = async (questionData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/questions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(questionData)
+    });
+    if (!response.ok) throw new Error('Error al crear pregunta');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating question:', error);
     throw error;
   }
 };

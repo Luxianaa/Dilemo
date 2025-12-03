@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import { gitLevels } from "../data/gitLevels";
 import energyFull from "../assets/full-energy.svg";
 import energyEmpty from "../assets/energy_empty.svg";
 import { useAuth } from "../context/AuthContext";
-import { updateUserProgress } from "../services/api";
+import { updateUserProgress, fetchQuestions } from "../services/api";
 
 const TIME_LIMIT = 15; // Segundos por pregunta
 
@@ -24,6 +23,7 @@ export default function GameGit() {
   const [lives, setLives] = useState(3);
   const [showModal, setShowModal] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
   const timerRef = useRef(null);
 
@@ -37,10 +37,19 @@ export default function GameGit() {
   }, [user, token]);
 
   useEffect(() => {
-    const currentQuestions =
-      gitLevels[level] || gitLevels[Object.keys(gitLevels).length];
+    const loadQuestions = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchQuestions('git', level);
+        setQuestions(data);
+      } catch (error) {
+        console.error('Error loading questions from DB:', error);
+        setQuestions([]);
+      }
+      setIsLoading(false);
+    };
 
-    setQuestions(shuffleArray(currentQuestions));
+    loadQuestions();
   }, [level]);
 
   useEffect(() => {
@@ -94,7 +103,13 @@ export default function GameGit() {
     }, 1500);
   };
 
-  if (questions.length === 0 || !questions[currentCardIndex]) return null;
+  if (isLoading || questions.length === 0 || !questions[currentCardIndex]) {
+    return (
+      <div className="h-screen w-full bg-[#FF6B6B] flex items-center justify-center border-8 border-black">
+        <div className="text-white text-4xl font-black tracking-tighter">CARGANDO...</div>
+      </div>
+    );
+  }
 
   const handleAnswer = (userAnswer) => {
     if (timerRef.current) {

@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import { pythonLevels } from "../data/pythonLevels";
 import pythonLogo from "../assets/python.svg";
 import { useAuth } from "../context/AuthContext";
-import { updateUserProgress } from "../services/api";
+import { updateUserProgress, fetchQuestions } from "../services/api";
 import energyFull from "../assets/full-energy.svg";
 import energyEmpty from "../assets/energy_empty.svg";
 
@@ -39,11 +38,19 @@ export default function GamePlay() {
   }, [user, token]);
 
   useEffect(() => {
-    const currentQuestions =
-      pythonLevels[level] || pythonLevels[Object.keys(pythonLevels).length];
+    const loadQuestions = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchQuestions('python', level);
+        setQuestions(data);
+      } catch (error) {
+        console.error('Error loading questions from DB:', error);
+        setQuestions([]);
+      }
+      setIsLoading(false);
+    };
 
-    setQuestions(shuffleArray(currentQuestions));
-    setIsLoading(false);
+    loadQuestions();
   }, [level]);
 
   useEffect(() => {

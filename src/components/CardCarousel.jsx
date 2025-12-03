@@ -1,20 +1,53 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
+import { fetchCategories } from "../services/api";
 
-// Importa imágenes
+// Importa imágenes por defecto
 import pythonLogo from "../assets/python.svg";
 import gitLogo from "../assets/git.svg";
 import quizLogo from "../assets/quiz.png";
+import phpLogo from "../assets/react.svg"; // TEMPORAL: Reemplazar con logo de PHP
 
 export default function CardCarousel() {
   const navigate = useNavigate();
+  const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const cards = [
-    { title: "python", img: pythonLogo, color: "#FFD93D" },
-    { title: "git", img: gitLogo, color: "#FF6B6B" },
-    { title: "logoquiz", img: quizLogo, color: "#4D96FF" },
-  ];
+  // Logos por defecto para las categorías conocidas
+  const defaultLogos = {
+    python: pythonLogo,
+    git: gitLogo,
+    logoquiz: quizLogo,
+    php: phpLogo
+  };
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categories = await fetchCategories();
+        const formattedCards = categories.map(cat => ({
+          title: cat.code,
+          img: defaultLogos[cat.code] || quizLogo, // Usar logo por defecto o genérico
+          color: cat.color || "#4D96FF"
+        }));
+        setCards(formattedCards);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        // Fallback a categorías hardcodeadas si falla
+        setCards([
+          { title: "python", img: pythonLogo, color: "#FFD93D" },
+          { title: "git", img: gitLogo, color: "#FF6B6B" },
+          { title: "logoquiz", img: quizLogo, color: "#4D96FF" },
+          { title: "php", img: phpLogo, color: "#777BB4" },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const [index, setIndex] = useState(0);
 
@@ -64,6 +97,16 @@ export default function CardCarousel() {
     if (diff > 50) nextCard();
     if (diff < -50) prevCard();
   };
+
+  if (loading || cards.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[320px]">
+        <div className="text-white text-2xl font-black animate-pulse">
+          CARGANDO...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center w-full max-w-6xl mx-auto">

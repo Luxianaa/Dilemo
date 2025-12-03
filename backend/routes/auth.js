@@ -142,19 +142,42 @@ router.post('/login',
 // GET /api/auth/me - Obtener usuario actual (ruta protegida)
 router.get('/me', authMiddleware, async (req, res) => {
   try {
+    console.log('👤 Obteniendo datos de usuario:', req.user.id);
     const [users] = await db.query(
       'SELECT id, username, email, display_name, coins, total_score, current_streak, longest_streak, last_played_date, play_history, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
 
     if (users.length === 0) {
+      console.warn('⚠️ Usuario no encontrado en DB:', req.user.id);
       return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Asegurar que el usuario tenga progreso para TODAS las categorías
+    const [categories] = await db.query('SELECT id FROM categories');
+    const [existingProgress] = await db.query('SELECT category_id FROM user_progress WHERE user_id = ?', [req.user.id]);
+
+    const existingCategoryIds = existingProgress.map(p => p.category_id);
+
+    for (const category of categories) {
+      if (!existingCategoryIds.includes(category.id)) {
+        console.log(`🆕 Inicializando progreso para categoría ${category.id} - usuario ${req.user.id}`);
+        try {
+          await db.query(
+            'INSERT INTO user_progress (user_id, category_id, current_level, total_score) VALUES (?, ?, 1, 0)',
+            [req.user.id, category.id]
+          );
+        } catch (err) {
+          console.error(`❌ Error al inicializar progreso para cat ${category.id}:`, err.message);
+          // No fallamos todo el request si falla una inicialización, pero lo logueamos
+        }
+      }
     }
 
     res.json({ user: users[0] });
   } catch (error) {
-    console.error('Error al obtener usuario:', error);
-    res.status(500).json({ error: 'Error al obtener datos del usuario' });
+    console.error('❌ Error crítico al obtener usuario:', error);
+    res.status(500).json({ error: 'Error al obtener datos del usuario', details: error.message });
   }
 });
 

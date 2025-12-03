@@ -303,6 +303,14 @@ export default function Settings() {
                                 <p className="text-black font-black text-2xl">{user?.total_score || 0}</p>
                             </div>
 
+                            {/* Botón Panel Administrador */}
+                            <button
+                                onClick={() => navigate('/admin')}
+                                className="w-full bg-[#9D4EDD] text-white py-4 rounded-2xl border-4 border-black font-black text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all"
+                            >
+                                🔧 PANEL ADMINISTRADOR
+                            </button>
+
                             {/* Botón Cerrar Sesión */}
                             <button
                                 onClick={handleLogout}

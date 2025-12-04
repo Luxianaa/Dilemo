@@ -4,13 +4,16 @@ import quizLogo from "../assets/quiz.png";
 import pythonLogo from "../assets/python.svg";
 import gitLogo from "../assets/git.svg";
 import phpLogo from "../assets/react.svg";
-import { fetchCategoryByCode } from "../services/api";
+import { fetchCategoryByCode, fetchUserProgress, fetchLevels } from "../services/api";
 import { getUploadUrl } from "../services/urlHelper";
+import { useAuth } from "../context/AuthContext";
 
 export default function CategoryMenu() {
     const navigate = useNavigate();
     const { categoryCode } = useParams();
+    const { user, token } = useAuth();
     const [level, setLevel] = useState(1);
+    const [totalLevels, setTotalLevels] = useState(0);
     const [categoryData, setCategoryData] = useState(null);
 
     // Logos por defecto
@@ -30,20 +33,59 @@ export default function CategoryMenu() {
     };
 
     useEffect(() => {
-        const saved = localStorage.getItem(`${categoryCode}Level`);
-        if (saved) setLevel(parseInt(saved));
-
-        // Cargar datos de la categoría desde la BD
-        const loadCategory = async () => {
+        const loadData = async () => {
+            // Cargar datos de la categoría desde la BD
             try {
                 const data = await fetchCategoryByCode(categoryCode);
                 setCategoryData(data);
             } catch (error) {
                 console.error('Error loading category:', error);
             }
+
+            // Cargar total de niveles disponibles
+            try {
+                const levelsData = await fetchLevels(categoryCode);
+                setTotalLevels(levelsData.length);
+            } catch (error) {
+                console.error('Error loading levels:', error);
+            }
+
+            // Obtener el nivel actual del usuario
+            if (user && token) {
+                // Usuario autenticado: obtener nivel desde la API
+                try {
+                    const progressData = await fetchUserProgress(token);
+                    const categoryProgress = progressData[categoryCode];
+                    let userLevel = categoryProgress?.level || 1;
+
+                    // Limitar el nivel al máximo disponible
+                    const levelsData = await fetchLevels(categoryCode);
+                    const maxLevel = levelsData.length;
+                    if (userLevel > maxLevel) {
+                        userLevel = maxLevel; // No mostrar niveles que no existen
+                        console.log(`⚠️ Nivel ajustado de ${categoryProgress?.level} a ${maxLevel} (máximo disponible)`);
+                    }
+
+                    setLevel(userLevel);
+                    console.log(`✅ Nivel cargado desde API para ${categoryCode}:`, userLevel);
+                } catch (error) {
+                    console.error('Error loading progress:', error);
+                    setLevel(1); // Default nivel 1 si hay error
+                }
+            } else {
+                // Usuario invitado: usar localStorage temporal (con prefijo guest_)
+                const saved = localStorage.getItem(`guest_${categoryCode}Level`);
+                if (saved) {
+                    setLevel(parseInt(saved));
+                    console.log(`✅ Nivel cargado desde localStorage (invitado) para ${categoryCode}:`, saved);
+                } else {
+                    setLevel(1);
+                }
+            }
         };
-        loadCategory();
-    }, [categoryCode]);
+
+        loadData();
+    }, [categoryCode, user, token]);
 
     // Usar logo_url de BD si existe, sino usar logo por defecto
     const logo = categoryData?.logo_url

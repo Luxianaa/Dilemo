@@ -1,22 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import gsap from "gsap";
-import quizLogo from "../assets/quiz.png";
-import pythonLogo from "../assets/python.svg";
-import gitLogo from "../assets/git.svg";
-import phpLogo from "../assets/react.svg";
 import { useAuth } from "../context/AuthContext";
-import { fetchUserProgress, updateUserProgress, fetchQuestions, fetchCategoryByCode, fetchLevels } from "../services/api";
-import { getUploadUrl } from "../services/urlHelper";
+import { updateUserProgress, fetchQuestions, fetchCategoryByCode } from "../services/api";
 import energyFull from "../assets/full-energy.svg";
 import energyEmpty from "../assets/energy_empty.svg";
 
 const TIME_LIMIT = 15; // Segundos por pregunta
 
-export default function GameCategory() {
+export default function CategoryGame() {
     const navigate = useNavigate();
-    const { categoryCode } = useParams();
+    const { category } = useParams();
     const { user, token, addCoins, updateStreakDaily, refreshUser } = useAuth();
+
     const [questions, setQuestions] = useState([]);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [lives, setLives] = useState(3);
@@ -24,87 +20,24 @@ export default function GameCategory() {
     const [isCorrect, setIsCorrect] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
-    const timerRef = useRef(null);
     const [categoryData, setCategoryData] = useState(null);
 
-    const [level, setLevel] = useState(1); // Nivel se cargará desde la API o localStorage invitado
-    const [totalLevels, setTotalLevels] = useState(0); // Total de niveles disponibles en la categoría
+    const timerRef = useRef(null);
 
-    // Logos por defecto
-    const categoryLogos = {
-        python: pythonLogo,
-        git: gitLogo,
-        logoquiz: quizLogo,
-        php: phpLogo
-    };
+    const level = parseInt(localStorage.getItem(`${category}Level`) || "1");
 
-    // Colores por categoría
-    const categoryColors = {
-        python: "#FFD93D",
-        git: "#FF6B6B",
-        logoquiz: "#4D96FF",
-        php: "#777BB4"
-    };
-
-    // Cargar datos de categoría y niveles disponibles
+    // Cargar datos de la categoría (para el logo, etc.)
     useEffect(() => {
-        const loadCategory = async () => {
+        const loadCategoryData = async () => {
             try {
-                const data = await fetchCategoryByCode(categoryCode);
+                const data = await fetchCategoryByCode(category);
                 setCategoryData(data);
             } catch (error) {
-                console.error('Error loading category:', error);
+                console.error("Error loading category data:", error);
             }
         };
-
-        const loadTotalLevels = async () => {
-            try {
-                const levelsData = await fetchLevels(categoryCode);
-                setTotalLevels(levelsData.length);
-                console.log(`✅ Total de niveles en ${categoryCode}:`, levelsData.length);
-            } catch (error) {
-                console.error('Error loading levels count:', error);
-            }
-        };
-
-        loadCategory();
-        loadTotalLevels();
-    }, [categoryCode]);
-
-    // Usar logo_url de BD si existe, sino usar logo por defecto
-    const logo = categoryData?.logo_url
-        ? getUploadUrl(categoryData.logo_url)
-        : (categoryLogos[categoryCode] || quizLogo);
-    const bgColor = categoryData?.color || categoryColors[categoryCode] || "#F0B331";
-
-    // Obtener el nivel actual del usuario
-    useEffect(() => {
-        const loadUserLevel = async () => {
-            if (user && token) {
-                // Usuario autenticado: obtener nivel desde la API
-                try {
-                    const progressData = await fetchUserProgress(token);
-                    const categoryProgress = progressData[categoryCode];
-                    const userLevel = categoryProgress?.level || 1;
-                    setLevel(userLevel);
-                    console.log(`✅ [GameCategory] Nivel cargado desde API para ${categoryCode}:`, userLevel);
-                } catch (error) {
-                    console.error('Error loading progress:', error);
-                    setLevel(1); // Default nivel 1 si hay error
-                }
-            } else {
-                // Usuario invitado: usar localStorage temporal (con prefijo guest_)
-                const saved = localStorage.getItem(`guest_${categoryCode}Level`);
-                if (saved) {
-                    setLevel(parseInt(saved));
-                    console.log(`✅ [GameCategory] Nivel cargado desde localStorage (invitado) para ${categoryCode}:`, saved);
-                } else {
-                    setLevel(1);
-                }
-            }
-        };
-        loadUserLevel();
-    }, [categoryCode, user, token]);
+        if (category) loadCategoryData();
+    }, [category]);
 
     // Actualizar racha diaria al entrar al juego
     useEffect(() => {
@@ -117,7 +50,7 @@ export default function GameCategory() {
         const loadQuestions = async () => {
             setIsLoading(true);
             try {
-                const data = await fetchQuestions(categoryCode, level);
+                const data = await fetchQuestions(category, level);
                 setQuestions(data);
             } catch (error) {
                 console.error('Error loading questions from DB:', error);
@@ -126,8 +59,10 @@ export default function GameCategory() {
             setIsLoading(false);
         };
 
-        loadQuestions();
-    }, [categoryCode, level]);
+        if (category) {
+            loadQuestions();
+        }
+    }, [category, level]);
 
     useEffect(() => {
         if (questions.length > 0) {
@@ -173,7 +108,7 @@ export default function GameCategory() {
         setLives(newLives);
 
         if (newLives <= 0) {
-            setTimeout(() => navigate(`/${categoryCode}`), 1000);
+            setTimeout(() => navigate(`/${category}`), 1000);
             return;
         }
 
@@ -185,11 +120,18 @@ export default function GameCategory() {
 
     if (isLoading || questions.length === 0 || !questions[currentCardIndex]) {
         return (
-            <div
-                className="h-screen w-full flex items-center justify-center border-8 border-black"
-                style={{ backgroundColor: bgColor }}
-            >
-                <div className="text-black text-4xl font-black tracking-tighter">CARGANDO...</div>
+            <div className="h-screen w-full bg-[#F0B331] flex items-center justify-center border-8 border-black">
+                <div className="text-black text-4xl font-black tracking-tighter">
+                    {isLoading ? "CARGANDO..." : "NO HAY PREGUNTAS"}
+                </div>
+                {!isLoading && questions.length === 0 && (
+                    <button
+                        onClick={() => navigate(`/${category}`)}
+                        className="absolute bottom-20 bg-white text-black px-6 py-3 rounded-xl border-4 border-black font-bold"
+                    >
+                        VOLVER
+                    </button>
+                )}
             </div>
         );
     }
@@ -200,88 +142,66 @@ export default function GameCategory() {
             clearInterval(timerRef.current);
         }
 
-        const correct = questions[currentCardIndex].answer === userAnswer;
-        setIsCorrect(correct);
+        // Convertir respuesta de string a boolean si es necesario, o comparar directamente
+        // Asumimos que userAnswer es boolean (true/false) y questions[].answer también o es string "true"/"false"
+        // En GamePlay original: const correct = questions[currentCardIndex].answer === userAnswer;
+        // Asegurémonos de comparar correctamente.
+        // Si la API devuelve "true" (string), y userAnswer es true (boolean).
+
+        const correctAnswer = questions[currentCardIndex].answer;
+        // Normalizar comparación
+        const isAnswerCorrect = String(correctAnswer).toLowerCase() === String(userAnswer).toLowerCase();
+
+        setIsCorrect(isAnswerCorrect);
         setShowModal(true);
 
-        if (!correct) {
+        if (!isAnswerCorrect) {
             const newLives = lives - 1;
             setLives(newLives);
 
             if (newLives <= 0) {
-                setTimeout(() => navigate(`/${categoryCode}`), 1000);
+                setTimeout(() => navigate(`/${category}`), 1000);
                 return;
             }
         }
 
         setTimeout(() => {
             setShowModal(false);
-            nextCard(correct ? "true" : "false");
+            nextCard(isAnswerCorrect ? "true" : "false");
         }, 1000);
     };
 
     const nextCard = async (direction) => {
         if (currentCardIndex >= questions.length - 1) {
-            // Verificar si hay más niveles disponibles
-            if (level >= totalLevels) {
-                // ¡Completó todos los niveles!
-                console.log(`🎉 ¡Felicidades! Completaste todos los niveles de ${categoryCode}`);
+            const currentLevel = parseInt(localStorage.getItem(`${category}Level`) || "1");
+            const nextLevel = currentLevel + 1;
 
-                // Guardar progreso final
-                if (user && token) {
-                    try {
-                        const basePoints = lives * 50;
-                        const levelBonus = level * 20;
-                        const scoreToAdd = basePoints + levelBonus;
+            localStorage.setItem(`${category}Level`, nextLevel);
 
-                        await addCoins(100); // Bonus por completar todos los niveles
-                        await updateUserProgress(token, categoryCode, {
-                            current_level: level, // Mantener en el último nivel
-                            lives: lives,
-                            score_to_add: scoreToAdd
-                        });
-                        await refreshUser();
-                    } catch (error) {
-                        console.error("Error saving final progress:", error);
-                    }
-                }
-
-                // Volver al menú de categoría
-                navigate(`/${categoryCode}`);
-                return;
-            }
-
-            const nextLevel = level + 1;
-
-            // Guardar progreso según el tipo de usuario
+            // Guardar progreso y dar monedas si está autenticado
             if (user && token) {
-                // Usuario autenticado: guardar en la base de datos
                 try {
                     // Calcular puntos basados en el desempeño
+                    // Fórmula: 50 puntos por cada vida restante + 20 por nivel
                     const basePoints = lives * 50;
-                    const levelBonus = level * 20;
+                    const levelBonus = currentLevel * 20;
                     const scoreToAdd = basePoints + levelBonus;
 
                     await addCoins(50);
 
-                    await updateUserProgress(token, categoryCode, {
+                    await updateUserProgress(token, category, {
                         current_level: nextLevel,
                         lives: lives,
-                        score_to_add: scoreToAdd
+                        score_to_add: scoreToAdd // Agregar puntos incrementales
                     });
 
                     await refreshUser();
-                    console.log(`✅ Progreso guardado en BD: nivel ${nextLevel}`);
                 } catch (error) {
                     console.error("Error saving progress:", error);
                 }
-            } else {
-                // Usuario invitado: guardar en localStorage con prefijo guest_
-                localStorage.setItem(`guest_${categoryCode}Level`, nextLevel);
-                console.log(`✅ Progreso guardado en localStorage (invitado): nivel ${nextLevel}`);
             }
 
-            navigate(`/${categoryCode}`);
+            navigate(`/${category}`);
             return;
         }
 
@@ -298,10 +218,7 @@ export default function GameCategory() {
     };
 
     return (
-        <div
-            className="min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden"
-            style={{ backgroundColor: bgColor }}
-        >
+        <div className="min-h-screen bg-[#FFD93D] flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
 
             {/* Patrón de fondo */}
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
@@ -309,7 +226,7 @@ export default function GameCategory() {
             {/* Header */}
             <div className="w-full max-w-md flex justify-between items-center mb-8 z-10">
                 <button
-                    onClick={() => navigate(`/${categoryCode}`)}
+                    onClick={() => navigate(`/${category}`)}
                     className="bg-white text-black px-4 py-2 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all font-bold"
                 >
                     SALIR
@@ -349,9 +266,15 @@ export default function GameCategory() {
                 {/* Carta */}
                 <div id="game-card" className="bg-white rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-6 min-h-[450px] flex flex-col items-center justify-between relative">
 
-                    {/* Icono */}
+                    {/* Icono Categoria */}
                     <div className="w-full flex-1 flex items-center justify-center p-4 border-b-4 border-black border-dashed mb-4">
-                        <img src={logo} alt={categoryCode} className="w-32 h-32" />
+                        {categoryData && categoryData.img ? (
+                            <img src={categoryData.img} alt={categoryData.name} className="w-32 h-32 object-contain" />
+                        ) : (
+                            <div className="w-32 h-32 flex items-center justify-center bg-gray-200 rounded-full border-4 border-black">
+                                <span className="text-4xl font-black">{categoryData?.name?.substring(0, 2).toUpperCase()}</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Pregunta */}

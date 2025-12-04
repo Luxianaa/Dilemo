@@ -5,6 +5,23 @@ const AuthContext = createContext(null);
 
 const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
 
+// Helper para limpiar todos los niveles de localStorage
+const clearAllCategoryLevels = () => {
+    // Limpiar niveles legacy hardcodeados
+    localStorage.removeItem('logoQuizLevel');
+    localStorage.removeItem('pythonLevel');
+    localStorage.removeItem('gitLevel');
+    localStorage.removeItem('phpLevel');
+
+    // Limpiar todos los niveles de categorías dinámicas
+    // Buscar todas las keys que terminen en "Level"
+    Object.keys(localStorage).forEach(key => {
+        if (key.endsWith('Level') || key.startsWith('guest_')) {
+            localStorage.removeItem(key);
+        }
+    });
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
@@ -83,10 +100,8 @@ export const AuthProvider = ({ children }) => {
             setToken(data.token);
             setUser(data.user);
 
-            // Limpiar localStorage de niveles anteriores (modo invitado)
-            localStorage.removeItem('logoQuizLevel');
-            localStorage.removeItem('pythonLevel');
-            localStorage.removeItem('gitLevel');
+            // Limpiar localStorage de niveles anteriores (modo invitado y categorías dinámicas)
+            clearAllCategoryLevels();
 
             return { success: true };
         } catch (error) {
@@ -123,10 +138,8 @@ export const AuthProvider = ({ children }) => {
             setToken(data.token);
             setUser(data.user);
 
-            // Limpiar localStorage de niveles anteriores (modo invitado)
-            localStorage.removeItem('logoQuizLevel');
-            localStorage.removeItem('pythonLevel');
-            localStorage.removeItem('gitLevel');
+            // Limpiar localStorage de niveles anteriores (modo invitado y categorías dinámicas)
+            clearAllCategoryLevels();
 
             return { success: true };
         } catch (error) {
@@ -146,6 +159,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        clearAllCategoryLevels(); // Limpiar todos los niveles al hacer logout
         setToken(null);
         setUser(null);
     };
@@ -166,14 +180,14 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const data = await response.json();
                 setUser(prev => ({ ...prev, coins: data.coins }));
-                
+
                 // Actualizar también el total_score
                 const userResponse = await fetch(`${API_URL}/api/auth/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
                     if (userData.user) {

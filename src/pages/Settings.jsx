@@ -7,7 +7,7 @@ export default function Settings() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
     const { isPlaying, volume, toggleMusic, changeVolume } = useMusic();
-    const [activeSection, setActiveSection] = useState('profile');
+    const [activeSection, setActiveSection] = useState('audio');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     // Estados para editar perfil
@@ -68,9 +68,9 @@ export default function Settings() {
     };
 
     const sections = [
-        { id: 'profile', label: 'PERFIL', color: '#4D96FF' },
+        // { id: 'profile', label: 'PERFIL', color: '#4D96FF' },
         { id: 'audio', label: 'AUDIO', color: '#6BCB77' },
-        { id: 'password', label: 'CONTRASEÑA', color: '#FFD93D' },
+        // { id: 'password', label: 'CONTRASEÑA', color: '#FFD93D' },
         { id: 'account', label: 'CUENTA', color: '#FF6B6B' }
     ];
 
@@ -308,7 +308,7 @@ export default function Settings() {
                                 onClick={() => navigate('/admin')}
                                 className="w-full bg-[#9D4EDD] text-white py-4 rounded-2xl border-4 border-black font-black text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all"
                             >
-                                🔧 PANEL ADMINISTRADOR
+                                PANEL ADMINISTRADOR
                             </button>
 
                             {/* Botón Cerrar Sesión */}

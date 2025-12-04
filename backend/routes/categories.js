@@ -89,10 +89,10 @@ router.post('/', upload.single('logo'), async (req, res) => {
       [name, code, color || '#4D96FF', description || '', logoUrl]
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      name, 
-      code, 
+    res.status(201).json({
+      id: result.insertId,
+      name,
+      code,
       color: color || '#4D96FF',
       description: description || '',
       logo_url: logoUrl

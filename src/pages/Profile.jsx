@@ -119,12 +119,12 @@ export default function Profile() {
                             </div>
                         </div>
 
-                        <div className="bg-gray-50 rounded-xl border-3 border-black p-3">
+                        {/* <div className="bg-gray-50 rounded-xl border-3 border-black p-3">
                             <div className="flex justify-between items-center">
                                 <span className="font-bold text-sm text-gray-700">Nombre:</span>
                                 <span className="text-black font-bold text-sm">{user.display_name || 'No configurado'}</span>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="bg-gray-50 rounded-xl border-3 border-black p-3">
                             <div className="flex justify-between items-center">

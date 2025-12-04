@@ -117,14 +117,14 @@ export default function SplashScreen() {
             </div>
 
             {/* Texto */}
-            <div ref={textRef} className="relative z-10 text-center mb-8">
-                <h1 className="text-6xl font-black text-white mb-2 tracking-tight drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                    DILEMO
-                </h1>
-                <p className="text-2xl font-bold text-black">
-                    Trivia de Verdadero o Falso
-                </p>
-            </div>
+            {/* <div ref={textRef} className="relative z-10 text-center mb-8">
+                    <h1 className="text-6xl font-black text-white mb-2 tracking-tight drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                        DILEMO
+                    </h1>
+                    <p className="text-2xl font-bold text-black">
+                        Trivia de Verdadero o Falso
+                    </p>
+                </div> */}
 
             {/* Botón EMPEZAR */}
             {showButton && (

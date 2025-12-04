@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { fetchCategories } from "../services/api";
+import { getUploadUrl } from "../services/urlHelper";
 
 // Importa imágenes por defecto
 import pythonLogo from "../assets/python.svg";
@@ -28,7 +29,8 @@ export default function CardCarousel() {
         const categories = await fetchCategories();
         const formattedCards = categories.map(cat => ({
           title: cat.code,
-          img: defaultLogos[cat.code] || quizLogo, // Usar logo por defecto o genérico
+          // Usar logo_url de la BD si existe, sino usar logo por defecto
+          img: cat.logo_url ? getUploadUrl(cat.logo_url) : (defaultLogos[cat.code] || quizLogo),
           color: cat.color || "#4D96FF"
         }));
         setCards(formattedCards);

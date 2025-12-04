@@ -61,3 +61,7 @@
     background-position: 50px 50px;
   }
 }
+/* Ocultar scrollbar en navegadores webkit */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

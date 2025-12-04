@@ -13,6 +13,9 @@ app.use(express.json());
 // Servir imágenes estáticas (logos)
 app.use('/logos', express.static(path.join(__dirname, '../src/assets/logos')));
 
+// Servir archivos subidos (uploads de categorías, etc.)
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 // Importar rutas
 const categoriesRoutes = require('./routes/categories');
 const levelsRoutes = require('./routes/levels');
@@ -47,7 +50,23 @@ app.get('/', (req, res) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  const os = require('os');
+  const networkInterfaces = os.networkInterfaces();
+  let localIP = 'localhost';
+  
+  // Encontrar la IP de red local
+  Object.keys(networkInterfaces).forEach((interfaceName) => {
+    networkInterfaces[interfaceName].forEach((iface) => {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        localIP = iface.address;
+      }
+    });
+  });
+
+  console.log(`🚀 Servidor corriendo en:`);
+  console.log(`   Local:   http://localhost:${PORT}`);
+  console.log(`   Network: http://${localIP}:${PORT}`);
   console.log(`📊 Base de datos: ${process.env.DB_NAME}`);
+  console.log(`📱 Para probar en celular, abre: http://${localIP}:5173`);
 });

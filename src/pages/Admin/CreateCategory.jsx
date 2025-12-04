@@ -6,10 +6,41 @@ export default function CreateCategory() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
-        code: ''
+        code: '',
+        color: '#4D96FF',
+        description: ''
     });
+    const [logoFile, setLogoFile] = useState(null);
+    const [logoPreview, setLogoPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar tipo de archivo
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                setMessage({ type: 'error', text: 'Solo se permiten imágenes (JPG, PNG, SVG, WEBP)' });
+                return;
+            }
+
+            // Validar tamaño (2MB máximo)
+            if (file.size > 2 * 1024 * 1024) {
+                setMessage({ type: 'error', text: 'La imagen no debe superar 2MB' });
+                return;
+            }
+
+            setLogoFile(file);
+            // Crear preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+            setMessage({ type: '', text: '' });
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,11 +48,23 @@ export default function CreateCategory() {
         setMessage({ type: '', text: '' });
 
         try {
-            await createCategory(formData);
+            // Crear FormData para enviar archivo
+            const submitData = new FormData();
+            submitData.append('name', formData.name);
+            submitData.append('code', formData.code);
+            submitData.append('color', formData.color);
+            submitData.append('description', formData.description);
+            if (logoFile) {
+                submitData.append('logo', logoFile);
+            }
+
+            await createCategory(submitData);
             setMessage({ type: 'success', text: 'Categoría creada correctamente' });
-            setFormData({ name: '', code: '' });
+            setFormData({ name: '', code: '', color: '#4D96FF', description: '' });
+            setLogoFile(null);
+            setLogoPreview(null);
         } catch (error) {
-            setMessage({ type: 'error', text: 'Error al crear la categoría' });
+            setMessage({ type: 'error', text: error.message || 'Error al crear la categoría' });
         } finally {
             setLoading(false);
         }
@@ -57,7 +100,7 @@ export default function CreateCategory() {
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
                                 className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#6BCB77] text-black font-medium"
-                                placeholder="Ej: Programación"
+                                placeholder="Ej: SQL"
                             />
                         </div>
 
@@ -69,8 +112,62 @@ export default function CreateCategory() {
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
                                 required
                                 className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#6BCB77] text-black font-medium"
-                                placeholder="Ej: programacion"
+                                placeholder="Ej: sql"
                             />
+                        </div>
+
+                        <div>
+                            <label className="block text-black font-bold mb-2 text-sm">COLOR</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="color"
+                                    value={formData.color}
+                                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                    className="w-16 h-12 border-4 border-black rounded-xl cursor-pointer"
+                                />
+                                <input
+                                    type="text"
+                                    value={formData.color}
+                                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                    className="flex-1 px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#6BCB77] text-black font-medium"
+                                    placeholder="#4D96FF"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-black font-bold mb-2 text-sm">DESCRIPCIÓN (opcional)</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                className="w-full px-4 py-3 border-4 border-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#6BCB77] text-black font-medium resize-none"
+                                placeholder="Descripción de la categoría"
+                                rows="3"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-black font-bold mb-2 text-sm">LOGO</label>
+                            <div className="space-y-2">
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/jpg,image/png,image/svg+xml,image/webp"
+                                    onChange={handleLogoChange}
+                                    className="w-full px-4 py-3 border-4 border-black rounded-xl bg-white text-black font-medium file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-2 file:border-black file:text-sm file:font-bold file:bg-[#FFD93D] file:text-black hover:file:bg-[#FFE55D] cursor-pointer"
+                                />
+                                {logoPreview && (
+                                    <div className="flex justify-center p-4 border-4 border-black rounded-xl bg-gray-50">
+                                        <img
+                                            src={logoPreview}
+                                            alt="Preview"
+                                            className="max-w-[120px] max-h-[120px] object-contain"
+                                        />
+                                    </div>
+                                )}
+                                <p className="text-xs text-gray-600 font-bold">
+                                    Formatos: JPG, PNG, SVG, WEBP (máx. 2MB)
+                                </p>
+                            </div>
                         </div>
 
                         <button

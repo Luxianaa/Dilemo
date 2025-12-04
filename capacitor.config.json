@@ -1,4 +1,4 @@
-{
+﻿{
   "appId": "com.dilemo.game",
   "appName": "Dilemo Game",
   "webDir": "dist",
@@ -6,7 +6,10 @@
     "androidScheme": "http",
     "cleartext": true,
     "allowNavigation": [
-      "172.20.10.2"
+      "192.168.1.11",
+      "172.20.10.2",
+      "localhost",
+      "10.0.2.2"
     ]
   }
 }

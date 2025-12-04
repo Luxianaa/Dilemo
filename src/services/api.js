@@ -218,12 +218,25 @@ export const fetchStreak = async (token) => {
 
 export const createCategory = async (categoryData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/categories`, {
+    // Detectar si es FormData (para upload de archivos) o JSON
+    const isFormData = categoryData instanceof FormData;
+    
+    const options = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(categoryData)
-    });
-    if (!response.ok) throw new Error('Error al crear categoría');
+      body: isFormData ? categoryData : JSON.stringify(categoryData)
+    };
+
+    // Solo establecer Content-Type para JSON (FormData lo maneja automáticamente)
+    if (!isFormData) {
+      options.headers = { 'Content-Type': 'application/json' };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/categories`, options);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Error al crear categoría');
+    }
     return await response.json();
   } catch (error) {
     console.error('Error creating category:', error);

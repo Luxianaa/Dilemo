@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { fetchGlobalLeaderboard, fetchCategoryLeaderboard } from '../services/api';
+import { fetchGlobalLeaderboard, fetchCategoryLeaderboard, fetchCategories } from '../services/api';
 import trophyImage from '../assets/dilemo-prizes.svg';
 
 export default function Leaderboard() {
@@ -10,10 +10,49 @@ export default function Leaderboard() {
     const [activeTab, setActiveTab] = useState('global');
     const [rankings, setRankings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [tabs, setTabs] = useState([]);
+
+    // Cargar categorías dinámicamente
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const categories = await fetchCategories();
+
+                // Tab Global siempre primero
+                const dynamicTabs = [
+                    { id: 'global', label: 'GLOBAL', color: '#6C5CE7' }
+                ];
+
+                // Agregar categorías de la base de datos
+                categories.forEach(cat => {
+                    dynamicTabs.push({
+                        id: cat.code,
+                        label: cat.code.toUpperCase(),
+                        color: cat.color || '#4D96FF'
+                    });
+                });
+
+                setTabs(dynamicTabs);
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                // Fallback a categorías hardcodeadas
+                setTabs([
+                    { id: 'global', label: 'GLOBAL', color: '#6C5CE7' },
+                    { id: 'logoquiz', label: 'LOGOS', color: '#4D96FF' },
+                    { id: 'python', label: 'PYTHON', color: '#FFD93D' },
+                    { id: 'git', label: 'GIT', color: '#FF6B6B' }
+                ]);
+            }
+        };
+
+        loadCategories();
+    }, []);
 
     useEffect(() => {
-        loadRankings(activeTab);
-    }, [activeTab]);
+        if (tabs.length > 0) {
+            loadRankings(activeTab);
+        }
+    }, [activeTab, tabs]);
 
     const loadRankings = async (category) => {
         setLoading(true);
@@ -35,13 +74,6 @@ export default function Leaderboard() {
         if (rank === 3) return '#CD7F32'; // Bronce
         return '#FFFFFF'; // Blanco
     };
-
-    const tabs = [
-        { id: 'global', label: 'GLOBAL', color: '#6C5CE7' },
-        { id: 'logoquiz', label: 'LOGOS', color: '#4D96FF' },
-        { id: 'python', label: 'PYTHON', color: '#FFD93D' },
-        { id: 'git', label: 'GIT', color: '#FF6B6B' }
-    ];
 
     return (
         <div className="min-h-screen bg-[#6C5CE7] px-4 py-6 font-sans relative overflow-hidden">
@@ -68,12 +100,12 @@ export default function Leaderboard() {
                 </div>
 
                 {/* Tabs de Categorías */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`py-3 px-4 rounded-xl border-4 border-black font-black text-sm transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${activeTab === tab.id
+                            className={`py-3 px-4 rounded-xl border-4 border-black font-black text-sm transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] whitespace-nowrap flex-shrink-0 ${activeTab === tab.id
                                 ? 'translate-y-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-white'
                                 : 'text-black bg-white hover:translate-y-1'
                                 }`}
